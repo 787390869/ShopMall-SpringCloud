@@ -1,0 +1,50 @@
+server:
+  port: 9999
+spring:
+  application:
+    name: Config-Center
+  cloud:
+    config:
+      server:
+        git:
+          uri: git@code.aliyun.com:787390869/Config-Center.git
+          force-pull: true
+          ignore-local-ssh-settings: true
+          private-key: |
+            -----BEGIN RSA PRIVATE KEY-----
+            MIIEowIBAAKCAQEAvgXEG9lA6fz1vuMGOlB+P3mpP0mc2vapRKdxUxqJTyU7D2M8
+            yKcpwbvDa+NuzScm4RO35SuXM6J2bahQaqOemebjoXqpbvAf8mLS1IqsgIvRJ+CY
+            dKvbrP5tUdRDlhOEjVcG+6KxdKMUxqFPBzhTJlJuAFIX1FyLfiR/dSiOKHpKhAKn
+            eFYbZqI2fw9Tnne7y/do5D8RVpnenc0wiHEOz9t8TrZd0zqonLU45KAON+MwjcbP
+            T40MurMQgC4NT/J3sGrzwBXrIBIn7PhisuLW0pKxe7WhzM1Fenu+pGiKaqmuoc8v
+            6rcLZVhwjijUosyrMTW6XJbRNcwqCzwmOrjCJwIDAQABAoIBAQCREPXWDNVxzJwP
+            TmHCwxCehNKgbiJBR22R7AKn3upUcafU533P8U3/iMh35PkBxZH44oTRf6W+1Zhz
+            vrslriO2en3tGSegedDpymgJupRWzmauetfougrK1rG+dr3iJKRdAsNh96Jh2N5T
+            hXI/oNBZwTQZKpLmnIAhnNtxJbThUKf+7VaqsW69mZQIt/hYpVWip0XryJt6tTv/
+            ZQXeoSH6Kc5zO2ITWPXvMnhwbShl3owZclfKMLmR0i8k+nJLUKSmeMXRPmBd5KiE
+            vYGulQCg6Z1jhzrL75B6T7XF/10FkdCvLH23y0k52hjNgGtjvOWEcO+gCfbIU6ry
+            2YWFN+OBAoGBAPcyN+wXRLftLgw99L6iSwILfbGB5OS0wDzkvPgjfCoaw0MG/FQN
+            oFbfm8WuNF2gC9ezuN7tB3kn4I/1vd77o6eRCvxIIrBj3feij7Brriges3sHrMH8
+            YrsHbJTPeoKa0IgEzu1vxMYm8lkEzo+/OrCEbUtkmnnLUU8SOV9RORc1AoGBAMTK
+            RhPrOBBNSNlGhw0U6RybZ75TyY8aHCfhVkWjYsGxL8Hur7IZIhcUaL2di5KyKsKV
+            dRX61XXCvI6A5HpF4latLsiB1aq/x8Nb0OGJKCklc6W52Bb6CKVAYdlol7oDL2hE
+            G3SkpxxdkscvfyVZQOIGo/tI51k0jruAj4vkWrNrAoGAfr7mA4yutGvNN4Ow8On/
+            8a14pkJG3al8A/z4k3aGXIRaaAy15lcSRlji4wn+WZ8NU20YNl1sfoee0dGbqDB4
+            ahupeU93Ud/y2N0mNbwQkQuk1UlLIC/LY8BbwTVcyIiesY9dlkq/pyYjDtezHetc
+            KVPNQmHz/szsBNIATsozrp0CgYASVOlsR5gkZJ6pptlDzbPdd1iVsUZwbzU6PdKE
+            kDDN7EyPm0WAqLi1P7B2IWv0EWbMU5Hhp0klPCvGdplSDpqECoP2J6oYyt64AyCV
+            Meqs0pFQWdyYX1hY1IOI9iZULKHI67dHCWOLz+exaGpGt2bE52t1KBhtBelZ7CLz
+            HCWa2wKBgAiZhNrochp+oNN2NN0NFGWSyJwelfVcWeVIO14Rwo9qWi/PN3QGWADX
+            ksHqfVGbp1SXMHh5XAfaaG1bzQznv67Uy2AZM0WBB0xM+8bk9GWPSxELZMzZi7YT
+            ZS2PtvXDKc2EliC4IDuP60BgHEqYglXRwyyvlVr4yL2JhIbePubB
+            -----END RSA PRIVATE KEY-----
+          default-label: dev
+          clone-on-start: true
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka:8761/eureka
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true

@@ -1,0 +1,20 @@
+#server:
+#  port: 9999
+#spring:
+#  application:
+#    name: Config-Center
+#  cloud:
+#    config:
+#      server:
+#        git:
+#          uri: https://github.com/787390869/Spring-Config-Center
+#          username: 787390869
+#          password: zzq1998410
+#eureka:
+#  client:
+#    service-url:
+#      defaultZone: http://eureka:8761/eureka
+#    register-with-eureka: true
+#    fetch-registry: true
+#  instance:
+#    prefer-ip-address: true

@@ -1,0 +1,30 @@
+version: '3.6'
+
+networks:
+  backend:
+    name: eureka
+
+services:
+  Eureka:
+    image: eureka-server
+    ports:
+      - "8761:8761"
+  UserClient:
+    image: user-client
+    ports:
+      - "80:80"
+    links:
+      - Eureka:eureka
+  UserServer:
+    image: user-server
+    ports:
+      - "8020:8020"
+    links:
+      - Eureka:eureka
+  GoodsServer:
+    image: goods-server
+    ports:
+      - "8010:8010"
+    links:
+      - Eureka:eureka
+

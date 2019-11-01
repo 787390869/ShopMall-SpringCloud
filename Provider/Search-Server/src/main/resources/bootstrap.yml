@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: Search-Server
+  cloud:
+    config:
+      uri: http://localhost:9999/
+      profile: Conventional, ES, Authorization
+      label: dev
+      name: Config-Center
