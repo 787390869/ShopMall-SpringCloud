@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 import java.util.Collections;
+import java.util.UUID;
 
 /**
  * @Author: ZhangZiQiang
@@ -45,5 +46,9 @@ public class BaseRedisLock {
         return false;
     }
 
+    // Redis锁随机Value
+    public static String lockValue() {
+        return UUID.randomUUID().toString();
+    }
 }
 
