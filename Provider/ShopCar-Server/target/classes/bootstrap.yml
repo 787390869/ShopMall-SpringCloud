@@ -5,5 +5,5 @@ spring:
     config:
       uri: http://127.0.0.1:9999/
       label: dev
-      profile: Mysql-ShopCar, RabbitMQ-Custom, Conventional, Authorization, Redis
+      profile: Mysql-ShopCar, RabbitMQ-General, Conventional, Authorization, Redis
       name: Config-Center

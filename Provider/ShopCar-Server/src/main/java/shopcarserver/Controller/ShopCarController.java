@@ -1,5 +1,6 @@
 package shopcarserver.Controller;
 
+import BaseMQ.MQEnum;
 import Beans.Goods;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,6 +118,6 @@ public class ShopCarController {
     @GetMapping("sendMessage")
     public void sendMessage() {
         System.out.println("ShopCar-Server 已发送消息!");
-        rabbitTemplate.convertAndSend("shit", "你是谁?");
+        rabbitTemplate.convertAndSend(MQEnum.topicQueue1.getExchangeName(),"add.name", "你是谁?");
     }
 }
