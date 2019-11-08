@@ -26,6 +26,22 @@
             <artifactId>spring-boot-starter-amqp</artifactId>
             <version>${spring-boot.rabbit.ampq.version}</version>
         </dependency>
+        <!-- TCC 分布式事务框架 -->
+        <dependency>
+            <groupId>com.zzq.tcc</groupId>
+            <artifactId>tcc-transaction-api</artifactId>
+            <version>${custom.tcc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.zzq.tcc</groupId>
+            <artifactId>tcc-transaction-core</artifactId>
+            <version>${custom.tcc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.zzq.tcc</groupId>
+            <artifactId>tcc-transaction-spring</artifactId>
+            <version>${custom.tcc.version}</version>
+        </dependency>
     </dependencies>
 
     <modules>
