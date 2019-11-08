@@ -15,6 +15,19 @@
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.rocketmq</groupId>
+            <artifactId>rocketmq-client</artifactId>
+            <version>${spring-boot.rocker.mq.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+            <version>${spring-boot.rabbit.ampq.version}</version>
+        </dependency>
+    </dependencies>
+
     <modules>
         <module>Goods-Server</module>
         <module>QA-Server</module>
