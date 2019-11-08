@@ -3,9 +3,10 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>ShopMall-2.0</artifactId>
-        <groupId>ShopMall-2.0</groupId>
+        <artifactId>ShopMall-3.0</artifactId>
+        <groupId>ShopMall-3.0</groupId>
         <version>1.0-SNAPSHOT</version>
+        <relativePath>../../ShopMall-3.0</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 

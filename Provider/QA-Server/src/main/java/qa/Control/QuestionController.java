@@ -46,4 +46,8 @@ public class QuestionController {
         return mapper.getEmployee();
     }
 
+    @GetMapping("updateAnswer")
+    public void updateAnswer() throws Exception{
+        questionService.updateAnswer();
+    }
 }

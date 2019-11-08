@@ -33,4 +33,7 @@ public interface QuestionDao {
     @Options(useGeneratedKeys = true, keyProperty = "id")
     @SelectProvider(type = QuestionSqlProvider.class, method = "selectOneQuestion")
     Question findById(@Param("id") int id);
+
+    @Update("update question set answer = #{answer} where id = #{id}")
+    void updateAnswer(@Param("answer")String answer, @Param("id")int id);
 }

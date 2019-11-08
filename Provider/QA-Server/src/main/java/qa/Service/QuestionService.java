@@ -1,7 +1,9 @@
 package qa.Service;
 
+import org.mengyun.tcctransaction.api.Compensable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import qa.Bean.Question;
 import qa.Dao.QuestionDao;
 
@@ -25,5 +27,11 @@ public class QuestionService {
       */
     public List<Question> findAll(){
         return questionDao.findAll();
+    }
+
+    @Transactional
+    public void updateAnswer() throws Exception{
+        questionDao.updateAnswer("纱布", 1);
+        throw new Exception("遇到异常");
     }
 }
