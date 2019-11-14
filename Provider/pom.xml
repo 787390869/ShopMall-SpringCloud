@@ -17,6 +17,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>ShopMall-3.0</groupId>
+            <artifactId>Base-Application</artifactId>
+            <version>${base.application.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.rocketmq</groupId>
             <artifactId>rocketmq-client</artifactId>
             <version>${spring-boot.rocker.mq.version}</version>

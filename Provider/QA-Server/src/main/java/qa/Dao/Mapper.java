@@ -1,7 +1,7 @@
 package qa.Dao;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.springframework.stereotype.Repository;
-import qa.Bean.Employee;
 import qa.Bean.Question;
 
 import java.util.List;
@@ -11,7 +11,5 @@ import java.util.List;
  * @Date 2019/10/12 15:52
  **/
 @Repository
-public interface Mapper {
-    Question getQuestionById(int id);
-    List<Employee> getEmployee();
+public interface Mapper extends BaseMapper<Question> {
 }

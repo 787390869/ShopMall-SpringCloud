@@ -22,5 +22,13 @@
         <module>Config-Center</module>
     </modules>
 
+    <dependencies>
+        <dependency>
+            <groupId>ShopMall-3.0</groupId>
+            <artifactId>Base-Application</artifactId>
+            <version>${base.application.version}</version>
+        </dependency>
+    </dependencies>
+
 
 </project>

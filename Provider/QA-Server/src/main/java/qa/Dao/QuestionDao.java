@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 import qa.Bean.Question;
+import qa.Dao.DynaSql.QuestionSqlProvider;
 
 import java.util.List;
 

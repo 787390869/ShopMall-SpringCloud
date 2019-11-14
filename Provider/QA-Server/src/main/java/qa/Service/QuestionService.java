@@ -29,9 +29,4 @@ public class QuestionService {
         return questionDao.findAll();
     }
 
-    @Transactional
-    public void updateAnswer() throws Exception{
-        questionDao.updateAnswer("纱布", 1);
-        throw new Exception("遇到异常");
-    }
 }

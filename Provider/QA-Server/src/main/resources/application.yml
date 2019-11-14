@@ -1,2 +1,8 @@
 server:
   port: 8050
+
+mybatis-plus:
+  global-config:
+    db-config:
+      column-underline: true
+      db-type: mysql

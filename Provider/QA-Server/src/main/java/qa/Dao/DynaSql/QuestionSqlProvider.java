@@ -1,4 +1,4 @@
-package qa.Dao;
+package qa.Dao.DynaSql;
 
 
 import org.apache.ibatis.jdbc.SQL;

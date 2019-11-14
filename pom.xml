@@ -21,6 +21,7 @@
         <lombook.version>1.18.8</lombook.version>
         <fast.json.version>1.2.29</fast.json.version>
         <logback.logstash.version>5.2</logback.logstash.version>
+        <base.application.version>3.0</base.application.version>
 
         <spring-boot.web.version>2.1.7.RELEASE</spring-boot.web.version>
         <spring-boot.mysql.connector.version>8.0.17</spring-boot.mysql.connector.version>
@@ -57,11 +58,6 @@
     </modules>
 
     <dependencies>
-        <dependency>
-            <groupId>ShopMall-3.0</groupId>
-            <artifactId>Base-Application</artifactId>
-            <version>3.0</version>
-        </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

@@ -17,6 +17,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>ShopMall-3.0</groupId>
+            <artifactId>Base-Application</artifactId>
+            <version>${base.application.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-sleuth-zipkin</artifactId>
             <version>${spring-cloud.zipkin.version}</version>

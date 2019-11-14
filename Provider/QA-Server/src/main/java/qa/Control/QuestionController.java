@@ -1,11 +1,11 @@
 package qa.Control;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import qa.Bean.Employee;
 import qa.Bean.Question;
 import qa.Dao.Mapper;
 import qa.Dao.QuestionDao;
@@ -41,13 +41,8 @@ public class QuestionController {
         return questionDao.findById(2);
     }
 
-    @GetMapping("employee")
-    public List<Employee> getEmployees() {
-        return mapper.getEmployee();
-    }
-
-    @GetMapping("updateAnswer")
-    public void updateAnswer() throws Exception{
-        questionService.updateAnswer();
+    @GetMapping("mybatisPlusTest")
+    public List<Question> findById() {
+        return  mapper.selectList(new QueryWrapper<Question>().like("goodname", "%示%"));
     }
 }
