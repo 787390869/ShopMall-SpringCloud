@@ -45,15 +45,22 @@ public class UserWithRole implements UserDetails {
     private String post;
     @Column(name = "email")
     private String email;
-    @Column(name = "role")
-    private String role;
-    @Column(name = "enname")
-    private String enname;
+    @Column(name = "enrole")
+    private String enrole;
+    @Column(name = "cnrole")
+    private String cnrole;
+    @Column(name = "enpermission")
+    private String enpermission;
+    @Column(name = "cnpermission")
+    private String cnpermission;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<GrantedAuthority> auths = new ArrayList<>();
-        auths.add(new SimpleGrantedAuthority(role));
+        auths.add(new SimpleGrantedAuthority("ROLE_" + enrole));
+        auths.add(new SimpleGrantedAuthority("ROLE_" + cnrole));
+        auths.add(new SimpleGrantedAuthority("ROLE_" +enpermission));
+        auths.add(new SimpleGrantedAuthority("ROLE_" + cnpermission));
         return auths;
     }
 

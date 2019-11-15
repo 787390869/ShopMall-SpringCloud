@@ -42,7 +42,7 @@ public class UserDetailsImpl implements UserDetailsService {
         }
         else {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
-            System.out.println("当前登录角色 : "+user.getAuthorities()+" ------->用户名 : "+user.getUsername());
+            System.out.println("当前登录角色&权限 : "+user.getAuthorities()+" ------->用户名 : "+user.getUsername());
         }
 
         // 将用户昵称存储在cookie

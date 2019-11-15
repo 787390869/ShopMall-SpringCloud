@@ -16,7 +16,7 @@ public interface UserRoleDao extends JpaRepository<UserWithRole,Long> {
      * @param username 用户名
      * @return 用户详细信息
      */
-    @Query(nativeQuery = true, value = "select user.*,role.enname role,permission.enname from user \n" +
+    @Query(nativeQuery = true, value = "select user.*, role.enname enrole, role.name cnrole, permission.enname enpermission, permission.name cnpermission from user \n" +
             "left join user_role on user.userid = user_role.user_id\n" +
             "left join role on role.id = user_role.role_id\n" +
             "left join role_permission on role_permission.role_id = role.id\n" +
