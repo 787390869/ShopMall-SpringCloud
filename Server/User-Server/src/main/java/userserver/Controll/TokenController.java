@@ -3,21 +3,30 @@ package userserver.Controll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.http.*;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.security.oauth2.provider.token.ConsumerTokenServices;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
+import userserver.Bean.OAuthClientDetails;
+import userserver.Dao.OAuthClientDetailsRepository;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URI;
 import java.security.Principal;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author 张自强
@@ -32,6 +41,19 @@ public class TokenController {
     @Autowired
     RestTemplate restTemplate;
 
+    @Autowired
+    private OAuthClientDetailsRepository oAuthClientDetailsRepository;
+
+    private RedisTemplate redisTemplate;
+    @Autowired(required = false)
+    private void setStringRedisTemplate(RedisTemplate redisTemplate) {
+        RedisSerializer stringSerializer = new StringRedisSerializer();
+        redisTemplate.setKeySerializer(stringSerializer);
+        redisTemplate.setValueSerializer(stringSerializer);
+        redisTemplate.setHashKeySerializer(stringSerializer);
+        redisTemplate.setHashValueSerializer(stringSerializer);
+        this.redisTemplate = redisTemplate;
+    }
     /**
       * 申请token
       *@Author ZhangZiQiang
@@ -41,7 +63,7 @@ public class TokenController {
       */
     @GetMapping("getAccessToken/{code}/{client_id}/{secret}")
     public Map getAccessToken(@PathVariable("code")String code, @PathVariable("client_id")String clientId,
-                              @PathVariable("secret")String secret){
+                              @PathVariable("secret")String secret, HttpServletRequest req){
         // 从Eureka获取认证服务器的Uri: http://127.0.0.1:8020
         ServiceInstance serviceInstance  = loadBalancerClient.choose("User-Server");
         URI uri = serviceInstance.getUri();
@@ -70,6 +92,21 @@ public class TokenController {
         // 远程调用,获取token信息
         ResponseEntity<Map> exchange = restTemplate.exchange(authUrl, HttpMethod.POST,httpEntity,Map.class);
         Map bodyMap = exchange.getBody();
+
+        String refresh_token = (String) bodyMap.get("refresh_token");
+        String access_token = (String) bodyMap.get("access_token");
+        if(!StringUtils.isEmpty(refresh_token)) {
+            OAuthClientDetails oAuthClientDetails = oAuthClientDetailsRepository.findAllByClientId(clientId);
+            String redirectUri = oAuthClientDetails.getWebServerRedirectUri().split("=")[1].replaceAll(":(.*)", "");
+            Cookie[] cookies = req.getCookies();
+            for(Cookie cookie: cookies) {
+                if(cookie.getName().equals("nickname")) {
+                    redirectUri += ":" + cookie.getValue();
+                }
+            }
+            redisTemplate.opsForValue().set(redirectUri + ":refresh", refresh_token, oAuthClientDetails.getRefreshTokenValidity(), TimeUnit.SECONDS);
+            redisTemplate.opsForValue().set(redirectUri + ":access", access_token, oAuthClientDetails.getAccessTokenValidity(), TimeUnit.SECONDS);
+        }
         return bodyMap;
     }
 

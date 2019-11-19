@@ -43,6 +43,11 @@
             <artifactId>spring-cloud-starter-oauth2</artifactId>
             <version>${spring-cloud.oauth2.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ShopMall-3.0</groupId>
+            <artifactId>Base-Application</artifactId>
+            <version>${base.application.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

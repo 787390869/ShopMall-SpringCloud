@@ -1,6 +1,10 @@
 package userserver.Controll;
 
+import BaseWeb.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.security.oauth2.provider.token.ConsumerTokenServices;
 import org.springframework.web.bind.annotation.*;
 import userserver.Bean.*;
@@ -10,13 +14,14 @@ import userserver.Service.Interface.UserService;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author 张自强
  */
 @RestController
 @RequestMapping("/UserServer")
-public class UserController {
+public class UserController extends BaseController {
 
     @Autowired
     ConsumerTokenServices consumerTokenServices;
@@ -36,6 +41,17 @@ public class UserController {
     @Autowired
     private CodeRepository codeRepository;
 
+    private RedisTemplate redisTemplate;
+    @Autowired(required = false)
+    private void setStringRedisTemplate(RedisTemplate redisTemplate) {
+        RedisSerializer stringSerializer = new StringRedisSerializer();
+        redisTemplate.setKeySerializer(stringSerializer);
+        redisTemplate.setValueSerializer(stringSerializer);
+        redisTemplate.setHashKeySerializer(stringSerializer);
+        redisTemplate.setHashValueSerializer(stringSerializer);
+        this.redisTemplate = redisTemplate;
+    }
+
     /**
      * 注销
      *@Author ZhangZiQiang
@@ -45,8 +61,11 @@ public class UserController {
      */
     @DeleteMapping("/logout")
     public String revokeToken(@RequestParam("access_token")String access_token, @RequestParam("refresh_token")String refresh_token) {
+        System.out.println(this.getUserDomain() + ":*");
         if(consumerTokenServices.revokeToken(access_token)) {
             consumerTokenServices.revokeToken(refresh_token);
+            Set<String> keys = redisTemplate.keys("127.0.0.1:*");
+            redisTemplate.delete(keys);
             return "注销成功!";
         } else {
             return "注销失败!";

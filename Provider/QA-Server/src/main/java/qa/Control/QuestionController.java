@@ -1,5 +1,6 @@
 package qa.Control;
 
+import BaseWeb.BaseController;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,7 +19,7 @@ import java.util.List;
  **/
 @RestController
 @RequestMapping("question")
-public class QuestionController {
+public class QuestionController extends BaseController {
 
     @Autowired
     private QuestionMapper questionMapper;
@@ -26,11 +27,17 @@ public class QuestionController {
     @Autowired
     private QuestionService questionService;
 
-    @PreAuthorize(value = "hasPermission('', 'handle')")
+    @PreAuthorize(value = "hasAnyRole('admin') or hasAnyAuthority('ROLE_handle')")
     @GetMapping("allQuestion")
     public List<Question> findAll() {
         List<Question> questionList = questionMapper.selectList(new QueryWrapper<>());
         return questionList;
+    }
+
+    @GetMapping("user")
+    public String getUser() {
+        System.out.println(this.getUserDomain());
+        return null;
     }
 }
 

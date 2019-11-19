@@ -1,12 +1,11 @@
 package userserver.Security;
 
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
-
 import java.io.Serializable;
-import java.security.acl.Permission;
 import java.util.Collection;
 
 /**
@@ -14,6 +13,7 @@ import java.util.Collection;
  * @Date: 2019-11-15 16:01
  **/
 @Component
+@Configuration
 public class CustomPermissionEvaluator implements PermissionEvaluator {
 
     public CustomPermissionEvaluator() {
@@ -21,7 +21,6 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
 
     @Override
     public boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission) {
-        System.out.println("haha");
         if("user".equals(targetDomainObject)) {
             return this.hasPermission(authentication, permission);
         } else {
@@ -31,7 +30,7 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
 
     @Override
     public boolean hasPermission(Authentication authentication, Serializable serializable, String s, Object o) {
-        return false;
+        return true;
     }
 
     public boolean hasPermission(Authentication authentication, Object permission) {

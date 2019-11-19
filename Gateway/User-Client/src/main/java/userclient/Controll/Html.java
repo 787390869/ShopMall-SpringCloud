@@ -1,5 +1,6 @@
 package userclient.Controll;
 
+import BaseWeb.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,7 +15,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author 张自强
  */
 @Controller
-public class Html {
+public class Html extends BaseController {
 
     @Autowired
     RestTemplate restTemplate;
@@ -35,6 +36,7 @@ public class Html {
         Cookie cookie = new Cookie("code", code);
         cookie.setPath("/");
         cookie.setMaxAge(-1);
+        cookie.setDomain(redirect_url.replaceAll(":(.*)", ""));
         resp.addCookie(cookie);
 
         return new ModelAndView(new RedirectView("http://" + redirect_url));
