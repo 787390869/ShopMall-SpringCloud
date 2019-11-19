@@ -19,6 +19,6 @@ public interface UserClient {
       *@Date 2019/9/23 15:05
       */
     @DeleteMapping("/UserServer/logout")
-    String revokeToken(@RequestParam("access_token")String access_token, @RequestParam("refresh_token")String refresh_token);
+    String revokeToken(@RequestParam("access_token")String access_token, @RequestParam("refresh_token")String refresh_token, @RequestParam("clientId")String clientId);
 
 }

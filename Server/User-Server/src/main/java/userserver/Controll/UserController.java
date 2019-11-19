@@ -11,6 +11,7 @@ import userserver.Bean.*;
 import userserver.Dao.*;
 import userserver.Service.Interface.UserService;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,9 @@ public class UserController extends BaseController {
     @Autowired
     private CodeRepository codeRepository;
 
+    @Autowired
+    private OAuthClientDetailsRepository oAuthClientDetailsRepository;
+
     private RedisTemplate redisTemplate;
     @Autowired(required = false)
     private void setStringRedisTemplate(RedisTemplate redisTemplate) {
@@ -60,11 +64,11 @@ public class UserController extends BaseController {
      *@Date 2019/9/2 13:01
      */
     @DeleteMapping("/logout")
-    public String revokeToken(@RequestParam("access_token")String access_token, @RequestParam("refresh_token")String refresh_token) {
-        System.out.println(this.getUserDomain() + ":*");
+    public String revokeToken(@RequestParam("access_token")String access_token, @RequestParam("refresh_token")String refresh_token, @RequestParam("clientId")String clientId) {
+        String domain = oAuthClientDetailsRepository.findAllByClientId(clientId).getWebServerRedirectUri().split("=")[1].replaceAll(":(.*)", "");
         if(consumerTokenServices.revokeToken(access_token)) {
             consumerTokenServices.revokeToken(refresh_token);
-            Set<String> keys = redisTemplate.keys("127.0.0.1:*");
+            Set<String> keys = redisTemplate.keys(domain + ":*");
             redisTemplate.delete(keys);
             return "注销成功!";
         } else {
