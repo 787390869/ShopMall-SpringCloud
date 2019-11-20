@@ -76,6 +76,26 @@ public class UserController extends BaseController {
         }
     }
 
+    @PostMapping("checkLoginStatus/{client}/{nickname}")
+    public String checkStatus(@PathVariable("client")String clientId, @PathVariable("nickname")String nickname) throws Exception{
+        String domain = oAuthClientDetailsRepository.findAllByClientId(clientId).getWebServerRedirectUri().split("=")[1].replaceAll(":(.*)", "");
+        String redisKey = domain + ":" + nickname +":";
+        Boolean accessExist = redisTemplate.hasKey(redisKey + "access");
+        Boolean refreshExist = redisTemplate.hasKey(redisKey + "refresh");
+        if(accessExist && refreshExist) {
+            return "您已登录";
+        }
+        else if (!accessExist && refreshExist) {
+            return "刷新令牌";
+        }
+        else if (!accessExist&& !refreshExist) {
+            return "您未登录";
+        }
+        else {
+            throw new Exception("授权端点异常!");
+        }
+    }
+
     /**
       * 通过昵称查询用户
       *@Author ZhangZiQiang

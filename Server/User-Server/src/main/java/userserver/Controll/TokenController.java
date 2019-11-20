@@ -1,5 +1,6 @@
 package userserver.Controll;
 
+import BaseWeb.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
@@ -33,7 +34,7 @@ import java.util.concurrent.TimeUnit;
  */
 @RestController
 @RequestMapping("/token")
-public class TokenController {
+public class TokenController extends BaseController {
 
     @Autowired
     private LoadBalancerClient loadBalancerClient;
