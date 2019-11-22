@@ -1,21 +1,35 @@
 package userserver.Controll;
 
 import BaseWeb.BaseController;
+import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.security.oauth2.provider.token.ConsumerTokenServices;
+import org.springframework.util.Base64Utils;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.DefaultResponseErrorHandler;
+import org.springframework.web.client.RestTemplate;
 import userserver.Bean.*;
 import userserver.Dao.*;
 import userserver.Service.Interface.UserService;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author 张自强
@@ -45,6 +59,12 @@ public class UserController extends BaseController {
     @Autowired
     private OAuthClientDetailsRepository oAuthClientDetailsRepository;
 
+    @Autowired
+    RestTemplate restTemplate;
+
+    @Autowired
+    private LoadBalancerClient loadBalancerClient;
+
     private RedisTemplate redisTemplate;
     @Autowired(required = false)
     private void setStringRedisTemplate(RedisTemplate redisTemplate) {
@@ -64,36 +84,97 @@ public class UserController extends BaseController {
      *@Date 2019/9/2 13:01
      */
     @DeleteMapping("/logout")
-    public String revokeToken(@RequestParam("access_token")String access_token, @RequestParam("refresh_token")String refresh_token, @RequestParam("clientId")String clientId) {
-        String domain = oAuthClientDetailsRepository.findAllByClientId(clientId).getWebServerRedirectUri().split("=")[1].replaceAll(":(.*)", "");
-        if(consumerTokenServices.revokeToken(access_token)) {
-            consumerTokenServices.revokeToken(refresh_token);
-            Set<String> keys = redisTemplate.keys(domain + ":*");
-            redisTemplate.delete(keys);
-            return "注销成功!";
-        } else {
-            return "注销失败!";
+    public String revokeToken(@RequestParam("clientId")String clientId, @RequestParam("nickname")String nickname) {
+        String domain = oAuthClientDetailsRepository.findAllByClientId(clientId)
+                .getWebServerRedirectUri().split("=")[1].replaceAll(":(.*)", "") + ":" + nickname;
+        String accessToken = (String) redisTemplate.opsForValue().get(domain + ":access");
+        String refreshToken = (String) redisTemplate.opsForValue().get(domain + ":refresh");
+        if(accessToken != null && refreshToken != null) {
+            if(consumerTokenServices.revokeToken(accessToken)) {
+                consumerTokenServices.revokeToken(refreshToken);
+                Set<String> keys = redisTemplate.keys(domain + ":*");
+                redisTemplate.delete(keys);
+            }
         }
+        return "注销成功";
     }
 
-    @PostMapping("checkLoginStatus/{client}/{nickname}")
-    public String checkStatus(@PathVariable("client")String clientId, @PathVariable("nickname")String nickname) throws Exception{
-        String domain = oAuthClientDetailsRepository.findAllByClientId(clientId).getWebServerRedirectUri().split("=")[1].replaceAll(":(.*)", "");
+    @PostMapping("checkLoginStatus")
+    public Map checkStatus(@RequestParam("info") String info) throws Exception{
+        System.out.println(JSONObject.parse(info));
+        JSONObject tokenObj = JSONObject.parseObject(info);
+        String clientId = Optional.ofNullable(tokenObj.getString("client")).orElse("");
+        String nickname = Optional.ofNullable(tokenObj.getString("nickname")).orElse("");
+        nickname = URLEncoder.encode(nickname, "UTF-8");
+        String secret = Optional.ofNullable(tokenObj.getString("secret")).orElse("");
+        OAuthClientDetails oAuthClientDetails = oAuthClientDetailsRepository.findAllByClientId(clientId);
+        String domain = oAuthClientDetails.getWebServerRedirectUri().split("=")[1].replaceAll(":(.*)", "");
         String redisKey = domain + ":" + nickname +":";
         Boolean accessExist = redisTemplate.hasKey(redisKey + "access");
         Boolean refreshExist = redisTemplate.hasKey(redisKey + "refresh");
-        if(accessExist && refreshExist) {
-            return "您已登录";
+        System.out.println(accessExist);
+        System.out.println(refreshExist);
+        Map map = new HashMap();
+        if(nickname == null || nickname == "") {
+            map.put("status", "您尚未登录");
+            return map;
+        }
+        else if(accessExist && refreshExist) {
+            map.put("status", "您已登录");
         }
         else if (!accessExist && refreshExist) {
-            return "刷新令牌";
+            map = getRefreshToken(clientId, secret, nickname, oAuthClientDetails);
+            map.put("status", "已刷新登录状态");
         }
         else if (!accessExist&& !refreshExist) {
-            return "您未登录";
+            map.put("status", "您尚未登录");
         }
         else {
-            throw new Exception("授权端点异常!");
+            Set<String> keys = redisTemplate.keys(domain + "*");
+            redisTemplate.delete(keys);
+            System.out.println("失败");
+            map.put("status", "您尚未登录");
         }
+        return map;
+    }
+
+    /** 功能描述: 刷新Token
+      * @Param: [clientId, clientSecret, nickname, oAuthClientDetails]
+      * @Author: ZhangZiQiang
+      * @Date: 2019/11/22 11:39
+      */
+    public Map getRefreshToken(String clientId, String clientSecret, String nickname, OAuthClientDetails oAuthClientDetails) {
+        ServiceInstance serviceInstance = loadBalancerClient.choose("User-Server");
+        URI uri = serviceInstance.getUri();
+        String refreshUrl = uri + "/oauth/token";
+        String domain = oAuthClientDetails.getWebServerRedirectUri().split("=")[1].replaceAll(":(.*)", "");
+        String redisKey = domain + ":" + nickname;
+        String refreshToken= (String) redisTemplate.opsForValue().get(redisKey + ":refresh");
+
+        LinkedMultiValueMap<String,String> header = new LinkedMultiValueMap<>();
+        header.add("Authorization",getHttpBasic(clientId,clientSecret));
+
+        LinkedMultiValueMap<String,String> body = new LinkedMultiValueMap<>();
+        body.add("grant_type","refresh_token");
+        body.add("refresh_token",refreshToken);
+
+        HttpEntity<MultiValueMap<String,String>> httpEntity  = new HttpEntity<>(body,header);
+        restTemplate.setErrorHandler(new DefaultResponseErrorHandler(){
+            @Override
+            protected void handleError(ClientHttpResponse response, HttpStatus statusCode) throws IOException {
+                if(response.getRawStatusCode()!=400 && response.getRawStatusCode()!=401){
+                    super.handleError(response);
+                }
+            }
+        });
+        ResponseEntity<Map> exchange = restTemplate.exchange(refreshUrl, HttpMethod.POST,httpEntity,Map.class);
+        Map bodyMap = exchange.getBody();
+
+        String newAccess = (String) bodyMap.get("access_token");
+        redisTemplate.opsForValue().set(redisKey + ":access", newAccess, oAuthClientDetails.getAccessTokenValidity(), TimeUnit.SECONDS);
+        bodyMap.put("accessTokenTimer", oAuthClientDetails.getAccessTokenValidity());
+        bodyMap.put("refreshTokenTimer", oAuthClientDetails.getRefreshTokenValidity());
+        return bodyMap;
     }
 
     /**
@@ -186,5 +267,16 @@ public class UserController extends BaseController {
         } else {
             return "验证失败!";
         }
+    }
+
+    /**
+     * 加密HttpBasic
+     * @param clientId 客户端ID
+     * @param clientSecret 客户端密码
+     * @return 加密后的客户端 ClientID:Secret
+     */
+    private String getHttpBasic(String clientId,String clientSecret) {
+        String str = clientId+":"+clientSecret;
+        return "Basic " + new String(Base64Utils.encode(str.getBytes()));
     }
 }

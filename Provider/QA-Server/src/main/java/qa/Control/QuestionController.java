@@ -11,7 +11,7 @@ import qa.Dao.QuestionMapper;
 import qa.Entity.Question;
 import qa.Service.QuestionService;
 
-import java.util.List;
+import java.util.*;
 
 /**
  * @Author: ZhangZiQiang
@@ -38,6 +38,18 @@ public class QuestionController extends BaseController {
     public String getUser() {
         System.out.println(this.getUserDomain());
         return null;
+    }
+
+    @GetMapping("dysnSQL")
+    public List<Question> dysnSQL() {
+        List<Integer> ids = new ArrayList<>();
+        ids.add(2); ids.add(3); ids.add(4);
+        int[] array = new int[]{2,3,4};
+        Set<Integer> set = new HashSet();
+        set.add(2);set.add(3);set.add(4);
+        Map<String, Integer> map = new HashMap();
+        map.put("1", 2);map.put("2", 3);map.put("3", 4);
+        return questionMapper.forEach(array);
     }
 }
 

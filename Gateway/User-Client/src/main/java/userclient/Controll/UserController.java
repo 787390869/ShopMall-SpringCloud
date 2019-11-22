@@ -24,17 +24,14 @@ public class UserController {
       *@Return java.lang.String
       *@Date 2019/9/2 11:41
       */
-    @DeleteMapping("logout/{access_token}/{refresh_token}/{clientId}")
-    public String logout(@PathVariable("access_token")String access_token,@PathVariable("refresh_token")String refresh_token,
-                         @PathVariable("clientId")String clientId,HttpServletRequest req, HttpServletResponse resp) {
-        String fallback = userClient.revokeToken(access_token,refresh_token, clientId);
-        if(fallback.equals("注销成功!")) {
-            Cookie[] cookies = req.getCookies();
-            for(Cookie cookie: cookies) {
-                    cookie.setPath("/");
-                    cookie.setMaxAge(0);
-                    resp.addCookie(cookie);
-            }
+    @DeleteMapping("logout/{clientId}/{nickname}")
+    public String logout(@PathVariable("clientId")String clientId,HttpServletRequest req, @PathVariable("nickname")String nickname,  HttpServletResponse resp) {
+        String fallback = userClient.revokeToken(clientId, nickname);
+        Cookie[] cookies = req.getCookies();
+        for(Cookie cookie: cookies) {
+                cookie.setPath("/");
+                cookie.setMaxAge(0);
+                resp.addCookie(cookie);
         }
         return fallback;
     }

@@ -4,6 +4,7 @@ import BaseMQ.MQEnum;
 import Beans.Goods;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import shopcarserver.Bean.ShopCar;
 import shopcarserver.Client.Interface.GoodsClient;
@@ -68,6 +69,7 @@ public class ShopCarController {
         return map;
     }
 
+    @PreAuthorize("hasAnyRole('顾客')")
     @GetMapping("myShopCar/{nickname}")
     public List<ShopCar> getMyShopCars(@PathVariable("nickname")String nickname) throws Exception{
         nickname = URLDecoder.decode(nickname, "UTF-8");

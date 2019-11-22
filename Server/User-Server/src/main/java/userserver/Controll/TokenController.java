@@ -96,8 +96,8 @@ public class TokenController extends BaseController {
 
         String refresh_token = (String) bodyMap.get("refresh_token");
         String access_token = (String) bodyMap.get("access_token");
+        OAuthClientDetails oAuthClientDetails = oAuthClientDetailsRepository.findAllByClientId(clientId);
         if(!StringUtils.isEmpty(refresh_token)) {
-            OAuthClientDetails oAuthClientDetails = oAuthClientDetailsRepository.findAllByClientId(clientId);
             String redirectUri = oAuthClientDetails.getWebServerRedirectUri().split("=")[1].replaceAll(":(.*)", "");
             Cookie[] cookies = req.getCookies();
             for(Cookie cookie: cookies) {
@@ -108,6 +108,8 @@ public class TokenController extends BaseController {
             redisTemplate.opsForValue().set(redirectUri + ":refresh", refresh_token, oAuthClientDetails.getRefreshTokenValidity(), TimeUnit.SECONDS);
             redisTemplate.opsForValue().set(redirectUri + ":access", access_token, oAuthClientDetails.getAccessTokenValidity(), TimeUnit.SECONDS);
         }
+        bodyMap.put("accessTokenTimer", oAuthClientDetails.getAccessTokenValidity());
+        bodyMap.put("refreshTokenTimer", oAuthClientDetails.getRefreshTokenValidity());
         return bodyMap;
     }
 
@@ -118,11 +120,15 @@ public class TokenController extends BaseController {
       *@Return java.util.Map
       *@Date 2019/9/2 13:02
       */
-    @GetMapping("getRefreshToken/{refreshToken}/{clientId}/{secret}")
-    public Map getRefreshToken(@PathVariable("refreshToken")String refreshToken, @PathVariable("clientId")String clientId, @PathVariable("secret")String clientSecret) {
+    @GetMapping("getRefreshToken/{refreshToken}/{clientId}/{secret}/{nickname}")
+    public Map getRefreshToken(@PathVariable("refreshToken")String refreshToken, @PathVariable("clientId")String clientId,
+                               @PathVariable("secret")String clientSecret, @PathVariable("nickname")String nickname) {
         ServiceInstance serviceInstance = loadBalancerClient.choose("User-Server");
         URI uri = serviceInstance.getUri();
         String refreshUrl = uri + "/oauth/token";
+        String domain = oAuthClientDetailsRepository.findAllByClientId(clientId).getWebServerRedirectUri().split("=")[1].replaceAll(":(.*)", "");
+        String redisKey = domain + ":" + nickname;
+        String refresh= (String) redisTemplate.opsForValue().get(redisKey + ":refresh");
 
         LinkedMultiValueMap<String,String> header = new LinkedMultiValueMap<>();
         header.add("Authorization",getHttpBasic(clientId,clientSecret));
