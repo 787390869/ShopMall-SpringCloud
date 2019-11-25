@@ -69,7 +69,7 @@ public class ShopCarController {
         return map;
     }
 
-    @PreAuthorize("hasAnyRole('顾客')")
+    @PreAuthorize("hasAnyAuthority('Permission_handle')")
     @GetMapping("myShopCar/{nickname}")
     public List<ShopCar> getMyShopCars(@PathVariable("nickname")String nickname) throws Exception{
         nickname = URLDecoder.decode(nickname, "UTF-8");

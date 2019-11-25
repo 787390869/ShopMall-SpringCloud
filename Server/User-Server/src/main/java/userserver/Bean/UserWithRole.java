@@ -8,10 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -45,22 +42,12 @@ public class UserWithRole implements UserDetails {
     private String post;
     @Column(name = "email")
     private String email;
-    @Column(name = "enrole")
-    private String enrole;
-    @Column(name = "cnrole")
-    private String cnrole;
-    @Column(name = "enpermission")
-    private String enpermission;
-    @Column(name = "cnpermission")
-    private String cnpermission;
+
+    @Transient
+    private Collection<GrantedAuthority> auths;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<GrantedAuthority> auths = new ArrayList<>();
-        auths.add(new SimpleGrantedAuthority("ROLE_" + enrole));
-        auths.add(new SimpleGrantedAuthority("ROLE_" + cnrole));
-        auths.add(new SimpleGrantedAuthority("ROLE_" +enpermission));
-        auths.add(new SimpleGrantedAuthority("ROLE_" + cnpermission));
         return auths;
     }
 

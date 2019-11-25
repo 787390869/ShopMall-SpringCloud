@@ -101,7 +101,6 @@ public class UserController extends BaseController {
 
     @PostMapping("checkLoginStatus")
     public Map checkStatus(@RequestParam("info") String info) throws Exception{
-        System.out.println(JSONObject.parse(info));
         JSONObject tokenObj = JSONObject.parseObject(info);
         String clientId = Optional.ofNullable(tokenObj.getString("client")).orElse("");
         String nickname = Optional.ofNullable(tokenObj.getString("nickname")).orElse("");
@@ -112,8 +111,6 @@ public class UserController extends BaseController {
         String redisKey = domain + ":" + nickname +":";
         Boolean accessExist = redisTemplate.hasKey(redisKey + "access");
         Boolean refreshExist = redisTemplate.hasKey(redisKey + "refresh");
-        System.out.println(accessExist);
-        System.out.println(refreshExist);
         Map map = new HashMap();
         if(nickname == null || nickname == "") {
             map.put("status", "您尚未登录");
@@ -127,7 +124,7 @@ public class UserController extends BaseController {
             map.put("status", "已刷新登录状态");
         }
         else if (!accessExist&& !refreshExist) {
-            map.put("status", "您尚未登录");
+            map.put("status", "登录失效");
         }
         else {
             Set<String> keys = redisTemplate.keys(domain + "*");
