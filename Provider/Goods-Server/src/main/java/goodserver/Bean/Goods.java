@@ -1,41 +1,38 @@
 package goodserver.Bean;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
 
 /**
  * @author 张自强
  */
 @Getter
 @Setter
-@Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table
+@TableName
 public class Goods {
 
-    @Id
+    @TableId(value = "Id")
     private int id;
 
-    @Column(name = "name")
+    @TableField(value = "Name")
     private String name;
 
-    @Column(name = "price")
+    @TableField(value = "Price")
     private String price;
 
-    @Column(name = "imageUrl")
+    @TableField(value = "imageUrl")
     private String imageUrl;
 
-    @Column(name = "image")
+    @TableField(value = "image")
     private String image;
 
-    @Column(name = "imagename")
+    @TableField(value = "imageName")
     private String imageName;
 }

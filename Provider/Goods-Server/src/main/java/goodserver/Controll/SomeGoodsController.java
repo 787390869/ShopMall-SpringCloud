@@ -1,9 +1,10 @@
 package goodserver.Controll;
 
-import com.alibaba.fastjson.JSONArray;
+import BaseWeb.ResultData;
 import goodserver.Bean.Goods;
-import goodserver.Service.Interface.GoodsService;
+import goodserver.Service.GoodsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,8 +21,9 @@ public class SomeGoodsController {
     @Autowired
     private GoodsService goodsService;
 
+    @PreAuthorize("hasAnyAuthority('ROLE_shoper')")
     @PostMapping("getOneGoods/{id}/{goodname}")
-    public Goods getOneGoods(@PathVariable("id")int id, @PathVariable("goodname")String goodname) {
+    public ResultData<Goods> getOneGoods(@PathVariable("id")int id, @PathVariable("goodname")String goodname) {
         return goodsService.findByIdAndGoodsname(id, goodname);
     }
 }

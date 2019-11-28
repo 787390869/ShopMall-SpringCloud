@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import userserver.Bean.UserWithRole;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author 张自强
@@ -45,4 +46,22 @@ public interface UserRoleDao extends JpaRepository<UserWithRole,Long> {
             "LEFT JOIN permission ON permission.id = role_permission.permission_id\n" +
             "where username = :username")
     List<String> findPermissionsByUsername(@Param("username")String username);
+
+    @Query(nativeQuery = true, value = "SELECT permission.enname, user.username enrole FROM USER\n" +
+            "LEFT JOIN user_role ON USER.userid = user_role.user_id\n" +
+            "LEFT JOIN role ON role.id = user_role.role_id\n" +
+            "LEFT JOIN role_permission ON role_permission.role_id = role.id\n" +
+            "LEFT JOIN permission ON permission.id = role_permission.permission_id")
+    List<Object[]> findUserWithPermission();
+
+    @Query(nativeQuery = true, value = "SELECT role.enname, user.username enrole FROM USER\n" +
+            "LEFT JOIN user_role ON USER.userid = user_role.user_id\n" +
+            "LEFT JOIN role ON role.id = user_role.role_id\n" +
+            "LEFT JOIN role_permission ON role_permission.role_id = role.id\n" +
+            "LEFT JOIN permission ON permission.id = role_permission.permission_id")
+    List<Object[]> findUserWithRole();
+
+    @Query(nativeQuery = true, value = "select userid from user where username = :username")
+    Long findIdByUserName(@Param("username")String username);
+
 }

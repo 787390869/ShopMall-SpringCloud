@@ -3,10 +3,8 @@ package userserver.Controll;
 import BaseWeb.ResultData;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 import userserver.Service.UserManageService;
 
 /**
@@ -23,6 +21,11 @@ public class ManagerController {
     @PostMapping("userList/{pageNum}/{pageSize}")
     public ResultData<JSONObject> userList(@PathVariable("pageNum") int pageNum,@PathVariable("pageSize") int pageSize) {
         return userManageService.findAllUser(pageNum, pageSize);
+    }
+
+    @GetMapping("role_permission")
+    public ResultData<JSONObject> rolePermission() throws Exception{
+        return userManageService.userRolePermissionData();
     }
 
 }
