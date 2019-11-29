@@ -7,18 +7,18 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 
 /**
- * @Author ZhangZiQiang
- * @Date 2019/9/10 21:41
+ * @Author: ZhangZiQiang
+ * @Date: 2019-11-28 18:00
  **/
 @Data
-@Entity
-@Table(name = "user_role")
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserRole {
+@Entity
+@Table(name = "role_permission")
+public class RolePermission {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @Column(name = "user_id")
@@ -29,4 +29,6 @@ public class UserRole {
 
     @Column(name = "available")
     private int available;
+
 }
+

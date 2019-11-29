@@ -2,20 +2,22 @@ package userserver.Service;
 
 import BaseWeb.BaseService;
 import BaseWeb.ResultData;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.hibernate.query.internal.NativeQueryImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PostMapping;
 import userserver.Bean.Role;
 import userserver.Bean.User;
 import userserver.Bean.UserEntity;
-import userserver.Dao.PermissionRepository;
-import userserver.Dao.RoleRepository;
-import userserver.Dao.UserDao;
-import userserver.Dao.UserRoleDao;
+import userserver.Bean.UserRole;
+import userserver.Dao.*;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -44,6 +46,9 @@ public class UserManageService extends BaseService {
 
     @PersistenceContext
     private EntityManager entityManager;
+
+    @Autowired
+    private UserRoleRepository userRoleRepository;
 
     /** 功能描述: 查询用户分页数据
       * @Param: [pageNum, pageSize]
@@ -99,6 +104,37 @@ public class UserManageService extends BaseService {
         jsonObject.put("permissions", permissions);
         jsonObject.put("UserAuthorization", authorization);
         return new ResultData<>(jsonObject);
+    }
+
+    /** 功能描述: 修改用户角色
+      * @Param: [info]
+      * @Author: ZhangZiQiang
+      * @Date: 2019/11/28 17:48
+      */
+    @Transactional(rollbackFor = Exception.class)
+    public ResultData changeRole(String info) {
+        JSONObject infoObj = JSONObject.parseObject(info);
+        Long userId = Optional.ofNullable(infoObj.getLong("id")).orElse(-1L);
+        String roles= Optional.ofNullable(infoObj.getString("roles")).orElse("");
+        JSONArray roleArray = JSONArray.parseArray(roles);
+
+        List<String> allRoles = roleRepository.findAll().stream().map(r -> r.getEnName()).collect(Collectors.toList());
+
+        roleArray.stream().forEach(r -> {
+            UserRole userRole = userRoleRepository.findByUserIdAndRoleId(userId, roleRepository.findByEnName((String) r).getId());
+            userRole.setAvailable(1);
+            userRoleRepository.save(userRole);
+        });
+
+        allRoles.stream().forEach(allRole -> {
+            if(!roleArray.contains(allRole)) {
+                UserRole userRole = userRoleRepository.findByUserIdAndRoleId(userId, roleRepository.findByEnName(allRole).getId());
+                userRole.setAvailable(0);
+                userRoleRepository.save(userRole);
+            }
+        });
+
+        return new ResultData();
     }
 
 }

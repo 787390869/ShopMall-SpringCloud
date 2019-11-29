@@ -3,6 +3,7 @@ package userserver.Controll;
 import BaseWeb.ResultData;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import userserver.Service.UserManageService;
@@ -26,6 +27,11 @@ public class ManagerController {
     @GetMapping("role_permission")
     public ResultData<JSONObject> rolePermission() throws Exception{
         return userManageService.userRolePermissionData();
+    }
+
+    @PostMapping("doChangeUserRole")
+    public ResultData changeRole(@Param("info")String info) {
+        return userManageService.changeRole(info);
     }
 
 }

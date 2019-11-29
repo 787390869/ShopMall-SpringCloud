@@ -43,10 +43,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public void addUser(User user) {
         userDao.save(user);
-        int id = Integer.parseInt(findByUsername(user.getUsername()).getUserid());
+        Long id = Long.parseLong(findByUsername(user.getUsername()).getUserid());
         UserRole userRole = new UserRole();
         userRole.setUserId(id);
-        userRole.setRoleId(2);
+        userRole.setRoleId(2L);
+        userRole.setAvailable(1);
         userRoleRepository.save(userRole);
     }
 
