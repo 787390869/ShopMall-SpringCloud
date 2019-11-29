@@ -19,25 +19,30 @@ public class ManagerController {
     @Autowired
     private UserManageService userManageService;
 
+    @PreAuthorize("hasAnyAuthority('ROLE_Admin')")
     @PostMapping("userList/{pageNum}/{pageSize}")
     public ResultData<JSONObject> userList(@PathVariable("pageNum") int pageNum,@PathVariable("pageSize") int pageSize) {
         return userManageService.findAllUser(pageNum, pageSize);
     }
 
+    @PreAuthorize("hasAnyAuthority('ROLE_Admin')")
     @GetMapping("role_permission/{pageNum}/{pageSize}/{username}")
     public ResultData<JSONObject> rolePermission(@PathVariable("pageNum")int pageNum, @PathVariable("pageSize")int pageSize,
                                                  @PathVariable("username")String username) throws Exception{
         return userManageService.userRolePermissionData(pageNum, pageSize, username);
     }
 
+    @PreAuthorize("hasAnyAuthority('ROLE_Admin')")
     @PostMapping("doChangeUserRole")
     public ResultData changeRole(@Param("info")String info) {
         return userManageService.changeRole(info);
     }
 
+    @PreAuthorize("hasAnyAuthority('ROLE_Admin')")
     @PostMapping("doChangeRolePermission")
     public ResultData changePermission(@Param("info")String info){return userManageService.changePermission(info);}
 
+    @PreAuthorize("hasAnyAuthority('ROLE_Admin')")
     @GetMapping("rolePermission")
     public ResultData<JSONObject> rolePermissionData(){
         return userManageService.findAllRolePermission();

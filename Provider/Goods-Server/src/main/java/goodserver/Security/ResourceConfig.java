@@ -19,7 +19,8 @@ public class ResourceConfig extends ResourceServerConfigurerAdapter {
     @Override
     public void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .antMatchers("/conventional/**").permitAll();
+                .antMatchers("/conventional/**").permitAll()
+                .antMatchers("/Auth/**").permitAll();
     }
 
 }
