@@ -10,4 +10,5 @@ import userserver.Bean.RolePermission;
  **/
 @Repository
 public interface RolePermissionRepository extends JpaRepository<RolePermission, Long> {
+    RolePermission findByRoleIdAndPermissionId(Long roleId, Long permissionId);
 }

@@ -64,13 +64,13 @@ public class ResultData<T> implements Serializable {
     }
 
     public ResultData(T data) {
-        this.code = 1;
+        this.code = RESULT_CODE_SUCCESS;
         this.message = RESULT_MESSAGE_SUCCESS;
         this.data = data;
     }
 
     public ResultData(List<T> dataList) {
-        this.code = 1;
+        this.code = RESULT_CODE_SUCCESS;
         this.message = RESULT_MESSAGE_SUCCESS;
         this.dataList = dataList;
     }

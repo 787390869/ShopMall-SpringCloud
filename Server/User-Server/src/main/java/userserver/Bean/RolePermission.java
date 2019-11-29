@@ -21,11 +21,11 @@ public class RolePermission {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(name = "user_id")
-    private Long userId;
-
     @Column(name = "role_id")
     private Long roleId;
+
+    @Column(name = "permission_id")
+    private Long permissionId;
 
     @Column(name = "available")
     private int available;

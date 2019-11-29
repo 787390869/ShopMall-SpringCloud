@@ -13,10 +13,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
-import userserver.Bean.Role;
-import userserver.Bean.User;
-import userserver.Bean.UserEntity;
-import userserver.Bean.UserRole;
+import userserver.Bean.*;
 import userserver.Dao.*;
 
 import javax.persistence.EntityManager;
@@ -50,6 +47,12 @@ public class UserManageService extends BaseService {
     @Autowired
     private UserRoleRepository userRoleRepository;
 
+    @Autowired
+    private UserRoleDaoImpl userRoleDaoImpl;
+
+    @Autowired
+    private RolePermissionRepository rolePermissionRepository;
+
     /** 功能描述: 查询用户分页数据
       * @Param: [pageNum, pageSize]
       * @Author: ZhangZiQiang
@@ -70,11 +73,17 @@ public class UserManageService extends BaseService {
       * @Author: ZhangZiQiang
       * @Date: 2019/11/27 16:02
       */
-    public ResultData<JSONObject> userRolePermissionData() throws Exception{
+    public ResultData<JSONObject> userRolePermissionData(int pageNum, int pageSize, String username) throws Exception{
         List<String> roles = roleRepository.findAll().stream().map(r -> r.getEnName()).collect(Collectors.toList());
         List<String> permissions = permissionRepository.findAll().stream().map(p -> p.getEnName()).collect(Collectors.toList());
 
-        List<Object[]> list = userRoleDao.findUserWithPermission();
+        if (username.equals("all")) {
+            username = null;
+        }
+        int start = (pageNum - 1) * pageSize;
+        int end = pageNum * pageSize;
+
+        List<Object[]> list = userRoleDaoImpl.findUserWithPermission(start, end, username);
         List<UserEntity> permissionList = castEntity(list, UserEntity.class);
         Map<String, List<UserEntity>> permissionMap = permissionList.stream().collect(Collectors.groupingBy(p -> p.getEnrole()));
         Map<String, List<String>> permission = new HashMap<>();
@@ -82,7 +91,7 @@ public class UserManageService extends BaseService {
             permission.put(p, permissionMap.get(p).stream().map(m -> m.getEnname()).collect(Collectors.toList()));
         });
 
-        List<Object[]> daoList = userRoleDao.findUserWithRole();
+        List<Object[]> daoList = userRoleDaoImpl.findUserWithRole(start, end, username);
         List<UserEntity> roleList = castEntity(daoList, UserEntity.class);
         Map<String, List<UserEntity>> roleMap = roleList.stream().collect(Collectors.groupingBy(r -> r.getEnrole()));
         Map<String, List<String>> role = new HashMap<>();
@@ -103,6 +112,7 @@ public class UserManageService extends BaseService {
         jsonObject.put("roles", roles);
         jsonObject.put("permissions", permissions);
         jsonObject.put("UserAuthorization", authorization);
+        jsonObject.put("count", authorization.size());
         return new ResultData<>(jsonObject);
     }
 
@@ -134,8 +144,69 @@ public class UserManageService extends BaseService {
             }
         });
 
-        return new ResultData();
+        return new ResultData(ResultData.RESULT_CODE_SUCCESS, ResultData.MESSAGE_UPDATE_SUCCESS);
     }
 
+    /** 功能描述: 更改角色权限
+      * @Param: [info]
+      * @Author: ZhangZiQiang
+      * @Date: 2019/11/29 12:42
+      */
+    @Transactional(rollbackFor = Exception.class)
+    public ResultData changePermission(String info) {
+        JSONObject infoObj = JSONObject.parseObject(info);
+        Long roleId = Optional.ofNullable(infoObj.getLong("id")).orElse(-1L);
+        String roles= Optional.ofNullable(infoObj.getString("permissions")).orElse("");
+        JSONArray permissionArray = JSONArray.parseArray(roles);
+
+        List<String> allPermissions = permissionRepository.findAll().stream().map(p -> p.getEnName()).collect(Collectors.toList());
+
+        permissionArray.stream().forEach(p -> {
+            RolePermission rolePermission = rolePermissionRepository.findByRoleIdAndPermissionId(roleId, permissionRepository.findByEnName((String) p).getId());
+            rolePermission.setAvailable(1);
+            rolePermissionRepository.save(rolePermission);
+        });
+
+        allPermissions.stream().forEach(allPermission -> {
+            if(!permissionArray.contains(allPermission)) {
+                RolePermission rolePermission = rolePermissionRepository.findByRoleIdAndPermissionId(roleId, permissionRepository.findByEnName(allPermission).getId());
+                rolePermission.setAvailable(0);
+                rolePermissionRepository.save(rolePermission);
+            }
+        });
+
+        return new ResultData(ResultData.RESULT_CODE_SUCCESS, ResultData.MESSAGE_UPDATE_SUCCESS);
+    }
+
+    /** 功能描述: 查出角色权限集
+      * @Param: []
+      * @Author: ZhangZiQiang
+      * @Date: 2019/11/29 11:18
+      */
+    public ResultData<JSONObject> findAllRolePermission() {
+        List<String> roles = roleRepository.findAll().stream().map(r -> r.getName()).collect(Collectors.toList());
+        List<String> permissions = permissionRepository.findAll().stream().map(p -> p.getEnName()).collect(Collectors.toList());
+        JSONObject jsonObject = new JSONObject();
+
+        LinkedList authorization = new LinkedList();
+        roles.stream().forEach(role -> {
+            List<Object[]> daoList = userRoleDaoImpl.findRoleWithPermission(role);
+            Map map = new HashMap<>();
+            try {
+                List<RolePermissionEntity>  rolePermissionEntities = castEntity(daoList, RolePermissionEntity.class);
+                List<String> roleList = rolePermissionEntities.stream().map(rp -> rp.getEnname()).collect(Collectors.toList());
+                map.put("name", role);
+                map.put("permissions", roleList);
+                map.put("id", roleRepository.findByName(role).getId());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            authorization.add(map);
+        });
+        jsonObject.put("authorizations", authorization);
+        jsonObject.put("roles", roles);
+        jsonObject.put("permissions", permissions);
+        return new ResultData<>(jsonObject);
+    }
 }
 

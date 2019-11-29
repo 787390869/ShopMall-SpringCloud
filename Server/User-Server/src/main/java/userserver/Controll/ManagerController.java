@@ -24,9 +24,10 @@ public class ManagerController {
         return userManageService.findAllUser(pageNum, pageSize);
     }
 
-    @GetMapping("role_permission")
-    public ResultData<JSONObject> rolePermission() throws Exception{
-        return userManageService.userRolePermissionData();
+    @GetMapping("role_permission/{pageNum}/{pageSize}/{username}")
+    public ResultData<JSONObject> rolePermission(@PathVariable("pageNum")int pageNum, @PathVariable("pageSize")int pageSize,
+                                                 @PathVariable("username")String username) throws Exception{
+        return userManageService.userRolePermissionData(pageNum, pageSize, username);
     }
 
     @PostMapping("doChangeUserRole")
@@ -34,5 +35,12 @@ public class ManagerController {
         return userManageService.changeRole(info);
     }
 
+    @PostMapping("doChangeRolePermission")
+    public ResultData changePermission(@Param("info")String info){return userManageService.changePermission(info);}
+
+    @GetMapping("rolePermission")
+    public ResultData<JSONObject> rolePermissionData(){
+        return userManageService.findAllRolePermission();
+    }
 }
 
