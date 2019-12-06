@@ -1,9 +1,0 @@
-spring:
-  application:
-    name: ZipKin-Server
-  cloud:
-    config:
-      uri: http://localhost:9999/
-      profile: Conventional
-      label: dev
-      name: Config-Center
