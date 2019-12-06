@@ -20,6 +20,7 @@
         <module>User-Server</module>
         <module>Zipkin-server</module>
         <module>Config-Center</module>
+        <module>File-Server</module>
     </modules>
 
 

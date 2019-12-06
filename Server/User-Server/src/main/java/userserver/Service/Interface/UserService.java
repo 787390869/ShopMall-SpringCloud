@@ -1,5 +1,6 @@
 package userserver.Service.Interface;
 
+import BaseWeb.ResultData;
 import userserver.Bean.User;
 
 /**
@@ -23,4 +24,7 @@ public interface UserService {
       *@Date 2019/9/23 14:57
       */
     void addUser(User user);
+
+    ResultData<User> findUserByUsername(String username);
+
 }

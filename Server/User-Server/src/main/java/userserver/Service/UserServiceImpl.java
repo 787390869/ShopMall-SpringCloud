@@ -1,5 +1,7 @@
 package userserver.Service;
 
+import BaseWeb.BaseService;
+import BaseWeb.ResultData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +16,7 @@ import userserver.Service.Interface.UserService;
  * @Date 2019/9/9 15:24
  **/
 @Service
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl extends BaseService implements UserService {
 
     @Autowired
     private UserDao userDao;
@@ -49,6 +51,18 @@ public class UserServiceImpl implements UserService {
         userRole.setRoleId(2L);
         userRole.setAvailable(1);
         userRoleRepository.save(userRole);
+    }
+
+    /** 功能描述: 通过用户昵称查寻用户信息
+      * @Param: [nickname]
+      * @Author: ZhangZiQiang
+      * @Date: 2019/12/3 11:22
+      */
+    @Override
+    public ResultData<User> findUserByUsername(String username) {
+        User user = userDao.findByUsername(username);
+        user.setPassword("");
+        return new ResultData<>(user);
     }
 
 }

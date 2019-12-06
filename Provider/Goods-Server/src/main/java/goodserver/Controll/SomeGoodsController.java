@@ -21,9 +21,9 @@ public class SomeGoodsController {
     @Autowired
     private GoodsService goodsService;
 
-    @PreAuthorize("hasAnyAuthority('ROLE_Shoper')")
     @PostMapping("getOneGoods/{id}/{goodname}")
     public ResultData<Goods> getOneGoods(@PathVariable("id")int id, @PathVariable("goodname")String goodname) {
         return goodsService.findByIdAndGoodsname(id, goodname);
     }
+
 }

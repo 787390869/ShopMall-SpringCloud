@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: File-Server
+  cloud:
+    config:
+      uri: http://localhost:9999/
+      profile: Redis, Conventional, Authorization
+      label: dev
+      name: Config-Center

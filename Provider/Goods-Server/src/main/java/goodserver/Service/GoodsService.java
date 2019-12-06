@@ -64,7 +64,7 @@ public class GoodsService extends BaseService {
       */
     public ResultData<Goods> findByIdAndGoodsname(int id, String goodName) {
         String tableName = toPinyin(goodName);
-        return new ResultData<Goods>(goodsMapper.findByIdAndGoodsname(id, tableName));
+        return new ResultData<>(goodsMapper.findByIdAndGoodsname(id, tableName));
     }
 
 }

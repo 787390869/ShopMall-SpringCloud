@@ -9,7 +9,6 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @EnableFeignClients
 @EnableDiscoveryClient
 @SpringBootApplication
-@MapperScan("qa.Dao")
 public class QAServer {
 
     public static void main(String[] args) {

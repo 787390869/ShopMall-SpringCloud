@@ -22,6 +22,9 @@ public interface UserDao extends JpaRepository<User,Long> {
       */
     User findByUsername(String username);
 
+    /** 通过昵称查询用户信息 */
+    User findByNickname(String nickname);
+
     @Override
     Page<User> findAll(Pageable pageable);
 

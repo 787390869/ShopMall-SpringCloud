@@ -1,4 +1,4 @@
-package qa.Dao;
+package qa.Mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
@@ -8,14 +8,13 @@ import org.springframework.stereotype.Repository;
 import qa.Entity.Question;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * @Author: ZhangZiQiang
  * @Date: 2019-11-15 09:28
  **/
 @Repository
+@Mapper
 public interface QuestionMapper extends BaseMapper<Question> {
 
     @Select("<script> select * from question <where>" +

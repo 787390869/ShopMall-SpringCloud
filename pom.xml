@@ -124,7 +124,7 @@
         </dependency>
     </dependencies>
 
-    <!--                                                 Spring Cloud版本在此                                        -->
+    <!--                                                 Spring Cloud 版本在此                                        -->
     <dependencyManagement>
         <dependencies>
             <dependency>

@@ -1,6 +1,7 @@
 package userserver.Controll;
 
 import BaseWeb.BaseController;
+import BaseWeb.ResultData;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.ServiceInstance;
@@ -188,6 +189,11 @@ public class UserController extends BaseController {
         } else {
             return "";
         }
+    }
+
+    @GetMapping("/userInfo/{username}")
+    public ResultData<User> userInfo(@PathVariable("username")String username) {
+        return userService.findUserByUsername(username);
     }
 
     /**

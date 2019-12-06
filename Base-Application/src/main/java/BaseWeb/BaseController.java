@@ -2,6 +2,11 @@ package BaseWeb;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import net.sourceforge.pinyin4j.PinyinHelper;
+import net.sourceforge.pinyin4j.format.HanyuPinyinCaseType;
+import net.sourceforge.pinyin4j.format.HanyuPinyinOutputFormat;
+import net.sourceforge.pinyin4j.format.HanyuPinyinToneType;
+import net.sourceforge.pinyin4j.format.exception.BadHanyuPinyinOutputFormatCombination;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import java.util.ArrayList;
@@ -47,6 +52,32 @@ public class BaseController {
             return authorizationInfo.getString("remoteAddress");
         }
         return "用户未授权";
+    }
+
+    /**
+     * 汉字转拼音
+     *@Author ZhangZiQiang
+     *@Param [chinese]
+     *@Date 2019/9/23 15:03
+     */
+    public static String toPinyin(String chinese){
+        String pinyinStr = "";
+        char[] newChar = chinese.toCharArray();
+        HanyuPinyinOutputFormat defaultFormat = new HanyuPinyinOutputFormat();
+        defaultFormat.setCaseType(HanyuPinyinCaseType.LOWERCASE);
+        defaultFormat.setToneType(HanyuPinyinToneType.WITHOUT_TONE);
+        for (int i = 0; i < newChar.length; i++) {
+            if (newChar[i] > 128) {
+                try {
+                    pinyinStr += PinyinHelper.toHanyuPinyinStringArray(newChar[i], defaultFormat)[0];
+                } catch (BadHanyuPinyinOutputFormatCombination e) {
+                    e.printStackTrace();
+                }
+            }else{
+                pinyinStr += newChar[i];
+            }
+        }
+        return pinyinStr.replace(":","");
     }
 }
 
