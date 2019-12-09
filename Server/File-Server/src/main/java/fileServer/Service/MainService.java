@@ -4,23 +4,32 @@ import BaseWeb.BaseService;
 import BaseWeb.ResultData;
 import com.alibaba.fastjson.JSONObject;
 import com.github.tobato.fastdfs.domain.conn.FdfsWebServer;
+import com.github.tobato.fastdfs.domain.fdfs.MetaData;
 import com.github.tobato.fastdfs.domain.fdfs.StorePath;
 import com.github.tobato.fastdfs.domain.fdfs.ThumbImageConfig;
+import com.github.tobato.fastdfs.domain.proto.storage.DownloadByteArray;
 import com.github.tobato.fastdfs.exception.FdfsServerException;
 import com.github.tobato.fastdfs.exception.FdfsUnsupportStorePathException;
 import com.github.tobato.fastdfs.service.FastFileStorageClient;
 import fileServer.Config.Folders;
+import fileServer.Scheduler.TimerTask;
+import fileServer.Utils.FileUtils;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.scheduling.config.ScheduledTask;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.net.Socket;
 import java.net.URL;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @Author: ZhangZiQiang
@@ -48,7 +57,10 @@ public class MainService extends BaseService {
     private FdfsWebServer fdfsWebServer;
 
     @Autowired
-    private Folders folders;
+    private StringRedisTemplate stringRedisTemplate;
+
+    @Autowired
+    private FileUtils fileUtil;
 
     /** 功能描述: 上传文件
       * @Param: [myfile]
@@ -57,10 +69,11 @@ public class MainService extends BaseService {
       */
     public ResultData<JSONObject> upload(MultipartFile myfile) throws Exception {
         JSONObject jsonObject = new JSONObject();
+        Set<MetaData> metaData = new HashSet<>();
+        metaData.add(new MetaData("Date", sdf.format(new Date())));
         String originName = myfile.getOriginalFilename(); // 源文件名
-        String filename = originName.substring(0, myfile.getOriginalFilename().lastIndexOf(".")); // 文件名
         String extName = originName.substring(originName.lastIndexOf(".") + 1); // 拓展名
-        StorePath storePath = this.storageClient.uploadFile(myfile.getInputStream(), myfile.getSize(), extName, null);
+        StorePath storePath = this.storageClient.uploadFile(myfile.getInputStream(), myfile.getSize(), extName, metaData);
         jsonObject.put("path", storePath.getFullPath());
         jsonObject.put("webPath", fdfsWebServer.getWebServerUrl() + storePath.getFullPath());
         jsonObject.put("md5", encodeMd5(storePath.getFullPath()));
@@ -77,7 +90,7 @@ public class MainService extends BaseService {
         String originName = file.getOriginalFilename();
         String extName = originName.substring(originName.lastIndexOf(".") + 1);
         StorePath storePath;
-        if (!this.checkFileType(extName)) {
+        if (!fileUtil.checkFileType(extName)) {
             jsonObject.put("error", "该文件不是图片");
             return new ResultData<>(ResultData.RESULT_CODE_FAIL,ResultData.RESULT_MESSAGE_FAIL, jsonObject);
         }
@@ -179,7 +192,7 @@ public class MainService extends BaseService {
       * @Date: 2019/12/6 15:52
       */
     public ResultData<List<String>> deleteMany(String pattern) {
-        ResultData<List<String>> resultData = this.groupFiles(pattern);
+        ResultData<List<String>> resultData = fileUtil.groupFiles(pattern);
         if (resultData.getData().size() != 0) {
             List<String> deleteFiles = resultData.getData();
             deleteFiles.stream().forEach(d -> {
@@ -191,45 +204,13 @@ public class MainService extends BaseService {
         return resultData;
     }
 
-    /** 功能描述: 文件分组
-      * @Param: [pattern]
-      * @Author: ZhangZiQiang
-      * @Date: 2019/12/9 9:30
-      */
-    private ResultData<List<String>> groupFiles(String pattern) {
-        ResultData<List<String>> resultData = new ResultData<>(ResultData.RESULT_CODE_FAIL, ResultData.RESULT_MESSAGE_FAIL);
-        List<String> deleteFiles = new ArrayList<>();
-        int mNumber = 0;
-        for (String name: this.folders.getName()) {
-            File folder = new File(name);
-            if (!folder.exists()) {
-                resultData.setMessage("不存在这样的目录");
-                return resultData;
-            }
-
-            File[] files = this.searchFile(folder, pattern);
-            for (File f: files) {
-                if (f.getAbsolutePath().indexOf(name) == 0) {
-                    String path = f.getAbsolutePath().substring(name.length());
-                    path = "group1/M0" + mNumber + path;
-                    deleteFiles.add(path);
-                } else {
-                    deleteFiles.add(f.getAbsolutePath());
-                }
-            }
-            mNumber++;
-        }
-        resultData.setData(deleteFiles);
-        return resultData;
-    }
-
     /** 功能描述: 搜索文件名
-      * @Param: [pattern: 通配符]
-      * @Author: ZhangZiQiang
-      * @Date: 2019/12/6 17:38
-      */
+     * @Param: [pattern: 通配符]
+     * @Author: ZhangZiQiang
+     * @Date: 2019/12/6 17:38
+     */
     public ResultData<JSONObject> search(String pattern) {
-        ResultData<List<String>> resultData = this.groupFiles(pattern);
+        ResultData<List<String>> resultData = fileUtil.groupFiles(pattern);
         if (resultData.getData().size() != 0) {
             JSONObject jsonObject  = new JSONObject();
             List<String> deleteFiles = resultData.getData();
@@ -240,49 +221,45 @@ public class MainService extends BaseService {
         return new ResultData<>(resultData.getCode(), resultData.getMessage());
     }
 
-    /** 功能描述: 检查文件是否是图片类型
-      * @Param: [ext] 后缀
+    /** 功能描述: 全景图上传图片
+      * @Param: [file]
       * @Author: ZhangZiQiang
-      * @Date: 2019/12/5 14:47
+      * @Date: 2019/12/9 16:55
       */
-    private boolean checkFileType(String ext) {
-        String[] types = new String[] {
-                "jpg", "png", "bmp", "gif", "jpeg", "tiff", "psd", "swf",
-                "svg", "pcx", "dxf", "wmf", "emf", "lic", "eps", "tga"
-        };
-        List<String> typeList = Arrays.asList(types);
-        if (typeList.contains(ext.toLowerCase())) {
-            return true;
-        }
-        return false;
-    }
-
-    /** 功能描述: 搜索匹配key的所有文件名称集合
-      * @Param: [folder: 文件夹路径, key: 关键字]
-      * @Author: ZhangZiQiang
-      * @Date: 2019/12/6 15:40
-      */
-    public File[] searchFile(File folder, String key) {
-        File[] subFolders = folder.listFiles(p -> {
-            if (p.isDirectory() || (p.isFile() && p.getName().toLowerCase().contains(key.toLowerCase()))) {
-                return true;
-            }
-            return false;
-        });
-
-        List<File> result = new ArrayList<>();
-        for (File f: subFolders) {
-            if(f.isFile()) {
-                result.add(f);
+    public ResultData<JSONObject> vrUpload(MultipartFile file) throws Exception{
+        String fileName = file.getOriginalFilename();
+        if (fileUtil.isContainChinese(fileName)) {
+            int index = fileName.indexOf('.');
+            if (-1 != index) {
+                fileName = fileName.substring(index + 1);
             } else {
-                File[] foldResult = searchFile(f, key);
-                for (File fr: foldResult) {
-                    result.add(fr);
-                }
+                fileName = "";
             }
         }
-
-        return result.toArray(new File[result.size()]);
+        String extName = fileName.substring(fileName.lastIndexOf(".") + 1);
+        StorePath storePath = this.storageClient.uploadFile(file.getInputStream(), file.getSize(), extName, null);
+        String redisKey = fileName.substring(0, fileName.lastIndexOf("_"));
+        stringRedisTemplate.opsForSet().add(redisKey, storePath.getFullPath());
+        TimerTask.redisKeys.add(redisKey);
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("path", storePath.getFullPath());
+        jsonObject.put("webPath", fdfsWebServer.getWebServerUrl() + storePath.getFullPath());
+        jsonObject.put("md5", this.encodeMd5(storePath.getFullPath()));
+        return new ResultData<>(jsonObject);
     }
+
+    /** 功能描述: 下载文件
+      * @Param: [fileUrl]
+      * @Author: ZhangZiQiang
+      * @Date: 2019/12/9 15:17
+      */
+    public byte[] downloadFile(String fileUrl) throws IOException {
+        String group = fileUrl.substring(0, fileUrl.indexOf("/"));
+        String path = fileUrl.substring(fileUrl.indexOf("/") + 1);
+        DownloadByteArray byteArray = new DownloadByteArray();
+        byte[] bytes = storageClient.downloadFile(group, path, byteArray);
+        return bytes;
+    }
+
 }
 

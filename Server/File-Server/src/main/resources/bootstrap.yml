@@ -4,6 +4,6 @@ spring:
   cloud:
     config:
       uri: http://localhost:9999/
-      profile: Redis, Conventional, Authorization
+      profile: Redis, Conventional
       label: dev
       name: Config-Center
