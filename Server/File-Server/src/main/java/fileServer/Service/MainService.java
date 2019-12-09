@@ -148,7 +148,7 @@ public class MainService extends BaseService {
     }
 
     /** 功能描述: 删除单个文件
-      * @Param: [fileUrl]
+      * @Param: [fileUrl: 文件]
       * @Author: ZhangZiQiang
       * @Date: 2019/12/4 13:59
       */
@@ -179,6 +179,24 @@ public class MainService extends BaseService {
       * @Date: 2019/12/6 15:52
       */
     public ResultData<List<String>> deleteMany(String pattern) {
+        ResultData<List<String>> resultData = this.groupFiles(pattern);
+        if (resultData.getData().size() != 0) {
+            List<String> deleteFiles = resultData.getData();
+            deleteFiles.stream().forEach(d -> {
+                // this.deleteOneFile(d);
+            });
+            resultData.setData(deleteFiles);
+            return resultData;
+        }
+        return resultData;
+    }
+
+    /** 功能描述: 文件分组
+      * @Param: [pattern]
+      * @Author: ZhangZiQiang
+      * @Date: 2019/12/9 9:30
+      */
+    private ResultData<List<String>> groupFiles(String pattern) {
         ResultData<List<String>> resultData = new ResultData<>(ResultData.RESULT_CODE_FAIL, ResultData.RESULT_MESSAGE_FAIL);
         List<String> deleteFiles = new ArrayList<>();
         int mNumber = 0;
@@ -201,10 +219,8 @@ public class MainService extends BaseService {
             }
             mNumber++;
         }
-        deleteFiles.stream().forEach(d -> {
-            // this.deleteOneFile(d);
-        });
-        return new ResultData<List<String>>(deleteFiles);
+        resultData.setData(deleteFiles);
+        return resultData;
     }
 
     /** 功能描述: 搜索文件名
@@ -213,35 +229,15 @@ public class MainService extends BaseService {
       * @Date: 2019/12/6 17:38
       */
     public ResultData<JSONObject> search(String pattern) {
-        ResultData<JSONObject> resultData = new ResultData<>(ResultData.RESULT_CODE_FAIL, ResultData.RESULT_MESSAGE_FAIL);
-        List<String> deleteFiles = new ArrayList<>();
-        JSONObject jsonObject = new JSONObject();
-        int mNumber = 0;
-        for (String name: this.folders.getName()) {
-            File folder = new File(name);
-            if (!folder.exists()) {
-                resultData.setMessage("不存在这样的目录");
-                return resultData;
-            }
-
-            File[] files = this.searchFile(folder, pattern);
-            for (File f: files) {
-                if (f.getAbsolutePath().indexOf(name) == 0) {
-                    String path = f.getAbsolutePath().substring(name.length());
-                    path = "group1/M0" + mNumber + path;
-                    deleteFiles.add(path);
-                } else {
-                    deleteFiles.add(f.getAbsolutePath());
-                }
-            }
-            mNumber++;
+        ResultData<List<String>> resultData = this.groupFiles(pattern);
+        if (resultData.getData().size() != 0) {
+            JSONObject jsonObject  = new JSONObject();
+            List<String> deleteFiles = resultData.getData();
+            jsonObject.put("files", deleteFiles);
+            jsonObject.put("count", deleteFiles.size());
+            return new ResultData<>(jsonObject);
         }
-        resultData.setCode(ResultData.RESULT_CODE_SUCCESS);
-        resultData.setMessage("搜索成功");
-        jsonObject.put("files", deleteFiles);
-        jsonObject.put("count", deleteFiles.size());
-        resultData.setData(jsonObject);
-        return resultData;
+        return new ResultData<>(resultData.getCode(), resultData.getMessage());
     }
 
     /** 功能描述: 检查文件是否是图片类型
