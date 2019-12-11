@@ -84,10 +84,11 @@ public class MainController extends BaseController {
     @PreAuthorize("hasAnyAuthority('ROLE_Vip') or hasAnyAuthority('Permission_Handle')")
     @PostMapping("delete/{fileUrl}/**")
     public ResultData<String> delete(@PathVariable("fileUrl")String url, HttpServletRequest req) {
+        url = url + "/" + extractPathFromPattern(req);
         if (!fileUtil.checkFileUrl(url)) {
             return new ResultData<>(ResultData.RESULT_CODE_FAIL, ResultData.RESULT_MESSAGE_FAIL, "文件名不合法");
         }
-        return mainService.deleteOneFile(url + "/" + extractPathFromPattern(req));
+        return mainService.deleteOneFile(url);
     }
 
     @ApiOperation("删除多个文件")

@@ -54,30 +54,29 @@ zuul:
   #  socket-timeout-millis: 2000
   #  connect-timeout-millis: 4000
 # serviceId路由方式超时配置
-Goods-Server:
-  ribbon:
-    ReadTimeout: 5000
-    SocketTimeout: 5000
-User-Server:
-  ribbon:
-    ReadTimeout: 10000
-    SocketTimeout: 5000
-ShopCar-Server:
-  ribbon:
-    ReadTimeout: 5000
-    SocketTimeout: 5000
-Search-Server:
-  ribbon:
-    ReadTimeout: 5000
-    SocketTimeout: 5000
-QA-Server:
-  ribbon:
-    ReadTimeout: 5000
-    SocketTimeout: 5000
+# 大文件上传, 这个超时加大力度
 File-Server:
   ribbon:
     ReadTimeout: 60000
     SocketTimeout: 10000
+
+# 默认下游服务超时时间配置
+ribbon:
+  ReadTimeout: 5000
+  SocketTimeout: 5000
+# 熔断时间5s => 解决第一次调用超时失败问题
+hystrix:
+  command:
+    File-Server:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 50000
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 5000
 
 eureka:
   client:
@@ -99,16 +98,3 @@ logging:
   level:
     root: ERROR
     org.springframework.web.servlet.DispatcherServlet: DEBUG
-
-# 熔断时间5s => 解决第一次调用超时失败问题
-hystrix:
-  command:
-    default:
-      execution:
-        isolation:
-          thread:
-            timeoutInMilliseconds: 5000
-      #default:
-      #execution:
-      #  timeout:
-      #    enabled: false
