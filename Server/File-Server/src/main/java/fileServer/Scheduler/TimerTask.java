@@ -3,6 +3,7 @@ package fileServer.Scheduler;
 import BaseWeb.BaseService;
 import fileServer.Service.MainService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -20,20 +21,32 @@ import java.util.*;
 @EnableScheduling
 public class TimerTask extends BaseService {
 
-    public static Set<String> redisKeys = new HashSet<>();
-
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
     @Autowired
     private MainService mainService;
 
+    @Value("${deleteFileKey}")
+    private String deleteFileKey;
+
     public void runSchedule() {
-        if (redisKeys.size() == 0) {
+
+        if (!stringRedisTemplate.hasKey(deleteFileKey)) {
             log.info("Quartz Scheduler Is Waiting For Task [Date: {}]", sdf.format(new Date()));
         } else {
+            Set<String> vrKeys = stringRedisTemplate.opsForSet().members(deleteFileKey);
+            vrKeys.stream().forEach(key -> {
+                Set<String> removingFies = stringRedisTemplate.opsForSet().members(key);
+                removingFies.stream().forEach(file -> {
+                    mainService.deleteOneFile(file);
+                    log.info("Quartz Scheduler Is sparked and removed file: {}", file);
+                });
+                stringRedisTemplate.delete(key);
+            });
+            stringRedisTemplate.delete(deleteFileKey);
             Set<String> removedRedisKeys = new HashSet<>();
-            redisKeys.stream().forEach(redisKey -> {
+            /*redisKeys.stream().forEach(redisKey -> {
                 Set<String> fileSet = stringRedisTemplate.opsForSet().members(redisKey);
                 fileSet.stream().forEach(file -> {
                     mainService.deleteOneFile(file);
@@ -46,7 +59,7 @@ public class TimerTask extends BaseService {
                 removedRedisKeys.stream().forEach(key -> {
                     redisKeys.remove(key);
                 });
-            }
+            }*/
         }
     }
 

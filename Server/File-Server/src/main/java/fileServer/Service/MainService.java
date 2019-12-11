@@ -38,6 +38,9 @@ import java.util.regex.Pattern;
 @Service
 public class MainService extends BaseService {
 
+    @Value("${deleteFileKey}")
+    private String deleteFileKey;
+
     @Value("${fdfs.thumb-image.width}")
     private int width;
 
@@ -239,8 +242,8 @@ public class MainService extends BaseService {
         String extName = fileName.substring(fileName.lastIndexOf(".") + 1);
         StorePath storePath = this.storageClient.uploadFile(file.getInputStream(), file.getSize(), extName, null);
         String redisKey = fileName.substring(0, fileName.lastIndexOf("_"));
+        stringRedisTemplate.opsForSet().add(deleteFileKey, redisKey);
         stringRedisTemplate.opsForSet().add(redisKey, storePath.getFullPath());
-        TimerTask.redisKeys.add(redisKey);
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("path", storePath.getFullPath());
         jsonObject.put("webPath", fdfsWebServer.getWebServerUrl() + storePath.getFullPath());
