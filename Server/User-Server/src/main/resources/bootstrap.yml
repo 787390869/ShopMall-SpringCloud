@@ -1,9 +1,9 @@
-spring:
-  application:
-    name: User-Server
-  cloud:
-    config:
-      uri: http://localhost:9999/
-      profile: Mysql-User, Redis, Conventional
-      label: dev
-      name: Config-Center
+#spring:
+#  application:
+#    name: User-Server
+#  cloud:
+#    config:
+#      uri: http://localhost:9999/
+#      profile: Mysql-User, Redis, Conventional
+#      label: dev
+#      name: Config-Center

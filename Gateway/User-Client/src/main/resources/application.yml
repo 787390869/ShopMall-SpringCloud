@@ -1,55 +1,114 @@
 server:
   port: 80
 
-#zuul:
-#  routes:
-#    route1:
-#      path: /Goods/**
-#      serviceId: Goods-Server
-#      sensitiveHeaders:
-#    route2:
-#      path: /User/**
-#      serviceId: User-Server
-#      sensitiveHeaders:
-#    route3:
-#      path: /ShopCar/**
-#      serviceId: ShopCar-Server
-#      sensitiveHeaders:
-#    route4:
-#      path: /Search/**
-#      serviceId: Search-Server
-#      sensitiveHeaders:
-#    route5:
-#      path: /QA/**
-#      serviceId: QA-Server
-#      sensitiveHeaders:
-#  # url方式,超时熔断
-#  #host:
-#  #  socket-timeout-millis: 2000
-#  #  connect-timeout-millis: 4000
-## serviceId路由方式超时配置
-#ribbon:
-#  ReadTimeout: 5000
-#  SocketTimeout: 3000
-#spring:
-#  zipkin:
-#    base-url: http://127.0.0.1:9411
-#  sleuth:
-#    sampler:
-#      rate: 1
-#logging:
-#  level:
-#    root: INFO
-#    org.springframework.web.servlet.DispatcherServlet: DEBUG
-## 熔断时间5s => 解决第一次调用超时失败问题
-#hystrix:
-#  command:
-#    default:
-#      execution:
-#        isolation:
-#          thread:
-#            timeoutInMilliseconds: 5000
-#    #default:
-#      #execution:
-#      #  timeout:
-#      #    enabled: false
+spring:
+  application:
+    name:  User-Client
+  zipkin:
+    base-url: http://127.0.0.1:9411
+  sleuth:
+    sampler:
+      rate: 1
+  servlet:
+    multipart:
+      enabled: true
+      max-request-size: 2048MB
+      max-file-size: 2048MB
+  redis:
+    database: 0
+    host: 127.0.0.1
+    port: 6379
+    jedis:
+      pool:
+        max-active: 8
+        max-wait: -1ms
+
+zuul:
+  routes:
+    route1:
+      path: /Goods/**
+      serviceId: Goods-Server
+      sensitiveHeaders:
+    route2:
+      path: /User/**
+      serviceId: User-Server
+      sensitiveHeaders:
+    route3:
+      path: /ShopCar/**
+      serviceId: ShopCar-Server
+      sensitiveHeaders:
+    route4:
+      path: /Search/**
+      serviceId: Search-Server
+      sensitiveHeaders:
+    route5:
+      path: /QA/**
+      serviceId: QA-Server
+      sensitiveHeaders:
+    route6:
+      path: /File/**
+      serviceId: File-Server
+      sensitiveHeaders:
+  # url方式,超时熔断
+  #host:
+  #  socket-timeout-millis: 2000
+  #  connect-timeout-millis: 4000
+# serviceId路由方式超时配置
+Goods-Server:
+  ribbon:
+    ReadTimeout: 5000
+    SocketTimeout: 5000
+User-Server:
+  ribbon:
+    ReadTimeout: 10000
+    SocketTimeout: 5000
+ShopCar-Server:
+  ribbon:
+    ReadTimeout: 5000
+    SocketTimeout: 5000
+Search-Server:
+  ribbon:
+    ReadTimeout: 5000
+    SocketTimeout: 5000
+QA-Server:
+  ribbon:
+    ReadTimeout: 5000
+    SocketTimeout: 5000
+File-Server:
+  ribbon:
+    ReadTimeout: 60000
+    SocketTimeout: 10000
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka:8761/eureka
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.cloud.client.ip-address}:${server.port}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+logging:
+  level:
+    root: ERROR
+    org.springframework.web.servlet.DispatcherServlet: DEBUG
+
+# 熔断时间5s => 解决第一次调用超时失败问题
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 5000
+      #default:
+      #execution:
+      #  timeout:
+      #    enabled: false

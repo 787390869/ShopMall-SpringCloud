@@ -1,3 +1,56 @@
 server:
   port: 8030
 
+spring:
+  application:
+    name: ShopCar-Server
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1/shopcar?serverTimezone=UTC
+    username: root
+    password: wowangle
+  jpa:
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /
+    publisher-confirms: true
+  redis:
+    database: 0
+    host: 127.0.0.1
+    port: 6379
+    jedis:
+      pool:
+        max-active: 8
+        max-wait: -1ms
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka:8761/eureka
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.cloud.client.ip-address}:${server.port}
+
+security:
+  oauth2:
+    client:
+      client-id: client
+      client-secret: secret
+      access-token-uri: http://localhost:8020/oauth/token
+      user-authorization-uri: http://localhost:8020/oauth/authorize
+    resource:
+      token-info-uri: http://localhost:8020/oauth/check_token
+      user-info-uri: http://localhost:8020/user
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

@@ -1,3 +1,43 @@
 server:
   port: 8040
 
+spring:
+  application:
+    name: Search-Server
+  data:
+    elasticsearch:
+      cluster-name: willy
+      cluster-nodes: 127.0.0.1:9300
+      properties:
+        transport:
+          tcp:
+            connect_timeout: 120s
+      repositories:
+        enabled: true
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka:8761/eureka
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.cloud.client.ip-address}:${server.port}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+security:
+  oauth2:
+    client:
+      client-id: client
+      client-secret: secret
+      access-token-uri: http://localhost:8020/oauth/token
+      user-authorization-uri: http://localhost:8020/oauth/authorize
+    resource:
+      token-info-uri: http://localhost:8020/oauth/check_token
+      user-info-uri: http://localhost:8020/user
