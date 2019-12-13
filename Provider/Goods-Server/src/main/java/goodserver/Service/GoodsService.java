@@ -22,6 +22,7 @@ public class GoodsService extends BaseService {
     @Autowired
     private GoodsMapper goodsMapper;
 
+
     /** 功能描述: 限制查询商品数据
       * @Param: [goodName, number]
       * @Author: ZhangZiQiang

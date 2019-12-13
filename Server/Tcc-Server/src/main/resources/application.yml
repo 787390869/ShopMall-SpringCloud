@@ -1,0 +1,32 @@
+server:
+  port: 9600
+
+spring:
+  application:
+    name: Tcc-Server
+  datasource:
+    url: jdbc:mysql://localhost/tx-manager?serverTimezone=UTC
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: wowangle
+
+tx-lcn:
+  logger:
+    enabled: false
+  manager:
+    host: 127.0.0.1
+    port: 9601
+    heart-time: 15000
+    dtx-time: 15000
+
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+    use-generated-keys: true
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka:8761/eureka
+    fetch-registry: true
+    register-with-eureka: true

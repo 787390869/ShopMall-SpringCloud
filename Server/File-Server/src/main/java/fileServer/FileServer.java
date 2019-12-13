@@ -12,7 +12,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
  * @Date: 2019-12-04 11:44
  **/
 @EnableDiscoveryClient
-@SpringBootApplication(exclude = {SecurityAutoConfiguration.class, ManagementWebSecurityAutoConfiguration.class})
+@SpringBootApplication/*(exclude = {SecurityAutoConfiguration.class, ManagementWebSecurityAutoConfiguration.class})*/
 public class FileServer {
     public static void main(String[] args) {
         SpringApplication.run(FileServer.class, args);

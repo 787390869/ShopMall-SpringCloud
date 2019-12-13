@@ -54,3 +54,6 @@ management:
     web:
       exposure:
         include: "*"
+tx-lcn:
+  client:
+    manager-address: 127.0.0.1:9601
