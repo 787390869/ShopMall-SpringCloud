@@ -59,3 +59,6 @@ mybatis-plus:
       column-underline: true
       db-type: mysql
 
+tx-lcn:
+  client:
+    manager-address: 127.0.0.1:9601

@@ -54,24 +54,21 @@ zuul:
   #  socket-timeout-millis: 2000
   #  connect-timeout-millis: 4000
 # serviceId路由方式超时配置
-# 大文件上传, 这个超时加大力度
+ribbon:
+  ReadTimeout: 5000
+  SocketTimeout: 5000
 File-Server:
   ribbon:
     ReadTimeout: 60000
     SocketTimeout: 10000
 
-# 默认下游服务超时时间配置
-ribbon:
-  ReadTimeout: 5000
-  SocketTimeout: 5000
-# 熔断时间5s => 解决第一次调用超时失败问题
 hystrix:
   command:
     File-Server:
       execution:
         isolation:
           thread:
-            timeoutInMilliseconds: 50000
+            timeoutInMilliseconds: 60000
     default:
       execution:
         isolation:

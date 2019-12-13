@@ -24,7 +24,6 @@ spring:
       pool:
         max-active: 8
         max-wait: -1ms
-
 eureka:
   client:
     service-url:
@@ -57,3 +56,6 @@ mybatis-plus:
     db-config:
       column-underline: true
       db-type: mysql
+tx-lcn:
+  client:
+    manager-address: 127.0.0.1:9601
