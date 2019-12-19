@@ -12,6 +12,7 @@ import searchserver.Bean.Menu;
 import searchserver.Service.MenuService;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @Author ZhangZiQiang
@@ -56,13 +57,12 @@ public class SearchController {
       */
     @GetMapping("findAll/{page}/{size}")
     public List<String> findAll(@PathVariable("page")int page, @PathVariable("size")int size) {
-        List<String> menu = new ArrayList<>();
         Pageable pageable = PageRequest.of(page, size);
         Page<Menu> menuList = menuService.findAll(pageable);
-        for(Menu m: menuList.getContent()) {
-            menu.add(m.getName());
-        }
-        return menu;
+        return menuList.getContent().stream()
+                .filter((m) -> m.getName()!= null)
+                .map(Menu::getName)
+                .collect(Collectors.toList());
     }
 
 }

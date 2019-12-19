@@ -1,4 +1,4 @@
-package qa.MQ;
+package qa.Entity;
 
 import Redis.BaseRedisLock;
 

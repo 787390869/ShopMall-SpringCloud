@@ -1,4 +1,4 @@
-package goodserver.Utils;
+package goodserver.Bean;
 
 import Redis.BaseRedisLock;
 import org.springframework.beans.factory.annotation.Autowired;

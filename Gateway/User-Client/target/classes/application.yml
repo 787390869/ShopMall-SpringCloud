@@ -61,10 +61,18 @@ File-Server:
   ribbon:
     ReadTimeout: 60000
     SocketTimeout: 10000
-
+Goods-Server:
+  ribbon:
+    ReadTimeout: 60000
+    SocketTimeout: 10000
 hystrix:
   command:
     File-Server:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 60000
+    Goods-Server:
       execution:
         isolation:
           thread:

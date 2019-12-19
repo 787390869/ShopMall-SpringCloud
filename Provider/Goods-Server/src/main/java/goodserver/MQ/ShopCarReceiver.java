@@ -1,4 +1,4 @@
-package goodserver.MQ.Receiver;
+package goodserver.MQ;
 
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;

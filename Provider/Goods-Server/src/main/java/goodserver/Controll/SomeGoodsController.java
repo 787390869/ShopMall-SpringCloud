@@ -25,5 +25,4 @@ public class SomeGoodsController {
     public ResultData<Goods> getOneGoods(@PathVariable("id")int id, @PathVariable("goodname")String goodname) {
         return goodsService.findByIdAndGoodsname(id, goodname);
     }
-
 }

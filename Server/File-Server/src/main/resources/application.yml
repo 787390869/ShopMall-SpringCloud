@@ -34,7 +34,7 @@ deleteFileKey: readyToDelete
 quartz:
   scheduler:
     deleteFile: # 0/30 0 9,18 * * ?
-      expression: 0 * * * * ?
+      expression: 0/30 * * * * ?
 
 fdfs:
   so-timeout: 30000
@@ -44,7 +44,7 @@ fdfs:
     height: 200
     format: png
   tracker-list:
-    - 172.18.98.211:22122
+    - 192.168.50.70:22122
   web-server-url: http://www.fatdog.shit:8888/
 
 eureka:

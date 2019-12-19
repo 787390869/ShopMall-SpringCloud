@@ -3,15 +3,10 @@ package goodserver.Controll;
 
 import BaseWeb.ResultData;
 import com.alibaba.fastjson.JSONObject;
-import goodserver.Bean.Goods;
 import goodserver.Service.GoodsService;
-import goodserver.Utils.RedisLock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import redis.clients.jedis.Jedis;
-
-import java.util.List;
-import java.util.UUID;
 
 /**
  * @author 张自强
@@ -35,4 +30,10 @@ public class GoodsController {
         return  goodsService.findList(name, orderWord, order, page, size);
     }
 
+    @PreAuthorize("hasAnyAuthority('ROLE_Admin') or hasAnyAuthority('ROLE_ShopMallHandler')")
+    @GetMapping("updateGoodsPy/{goodname}/{page}")
+    public ResultData<String> updateGoodsPy(@PathVariable("goodname")String goodname,
+                                            @PathVariable("page")int page) throws Exception{
+        return goodsService.updateGoodsPy(goodname, page);
+    }
 }

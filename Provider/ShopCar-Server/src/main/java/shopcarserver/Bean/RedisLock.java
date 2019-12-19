@@ -1,4 +1,4 @@
-package shopcarserver.MQ;
+package shopcarserver.Bean;
 
 import Redis.BaseRedisLock;
 
