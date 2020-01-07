@@ -1,13 +1,16 @@
 package shopcarserver.Controller;
 
-import BaseMQ.MQEnum;
-import Beans.Goods;
+import base.BaseMQ.MQEnum;
+import base.BaseWeb.ResultData;
+import base.Beans.Goods;
+import base.Client.Goods.GoodsClient;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import shopcarserver.Bean.ShopCar;
-import shopcarserver.Client.Interface.GoodsClient;
 import shopcarserver.Service.ShopCarService;
 import java.net.URLDecoder;
 import java.util.HashMap;
@@ -54,7 +57,8 @@ public class ShopCarController {
     public Map addToShopCar(@PathVariable("id")int id, @PathVariable("goodname")String goodname,
                             @PathVariable("nickname")String nickname) throws Exception{
         nickname = URLDecoder.decode(nickname, "UTF-8");
-        Goods goods = this.goodsClient.getOneGoods(id, goodname);
+        ResultData<Goods> data = this.goodsClient.getOneGoods(id, goodname);
+        Goods goods = JSON.parseObject(JSON.toJSONString(data.getData()), new TypeReference<Goods>(){});
         ShopCar shopCar = new ShopCar();
         shopCar.setGoodid(goods.getId());
         shopCar.setGoodname(goods.getName());

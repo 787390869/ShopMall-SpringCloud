@@ -1,15 +1,14 @@
 package goodserver.Service;
-
-import BaseWeb.BaseService;
-import BaseWeb.ResultData;
+import base.BaseWeb.BaseService;
+import base.BaseWeb.ResultData;
+import base.Redis.RedisLock;
+import base.Redis.RedisService;
 import com.alibaba.fastjson.JSONObject;
 import goodserver.Bean.Goods;
 import goodserver.Dao.GoodsMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ClassUtils;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Optional;
@@ -95,6 +94,15 @@ public class GoodsService extends BaseService {
             e.printStackTrace();
         }
         return new ResultData<>(result == 0 ? "更新成功" : "更新失败");
+    }
+
+    /** 功能描述: 获取商品单价
+      * @Param: [table, id]
+      * @Author: ZhangZiQiang
+      * @Date: 2020/1/6 17:38
+      */
+    public ResultData<String> getPrice(String table, int id) {
+        return new ResultData<>(goodsMapper.findByIdAndGoodsname(id, toPinyin(table)).getPrice());
     }
 
 }

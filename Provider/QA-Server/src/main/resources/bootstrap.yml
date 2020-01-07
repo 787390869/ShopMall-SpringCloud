@@ -4,6 +4,6 @@
 #  cloud:
 #    config:
 #      uri: http://localhost:9999/
-#      profile: Mysql-QA, RabbitMQ-General, Conventional, Authorization, Redis
+#      profile: Mysql-QA, RabbitMQ-General, Conventional, Authorization, base.Redis
 #      label: dev
 #      name: Config-Center

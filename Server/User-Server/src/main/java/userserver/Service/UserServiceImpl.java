@@ -1,7 +1,7 @@
 package userserver.Service;
 
-import BaseWeb.BaseService;
-import BaseWeb.ResultData;
+import base.BaseWeb.BaseService;
+import base.BaseWeb.ResultData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

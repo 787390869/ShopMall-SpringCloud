@@ -1,24 +1,20 @@
 package userserver.Service;
 
-import BaseWeb.BaseService;
-import BaseWeb.ResultData;
+import base.BaseWeb.BaseService;
+import base.BaseWeb.ResultData;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import org.hibernate.query.internal.NativeQueryImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PostMapping;
 import userserver.Bean.*;
 import userserver.Dao.*;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import java.util.*;
 import java.util.stream.Collectors;
 

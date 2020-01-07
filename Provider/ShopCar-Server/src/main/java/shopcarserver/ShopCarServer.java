@@ -9,8 +9,9 @@ import org.springframework.context.annotation.ComponentScan;
 
 @EnableDiscoveryClient
 @SpringBootApplication
-@EnableFeignClients
+@EnableFeignClients(basePackages = {"base"})
 @EnableDistributedTransaction
+@ComponentScan({"base", "shopcarserver"})
 public class ShopCarServer {
 
     public static void main(String[] args) {

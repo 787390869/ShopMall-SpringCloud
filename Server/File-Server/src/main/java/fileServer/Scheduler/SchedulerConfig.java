@@ -25,7 +25,7 @@ public class SchedulerConfig {
     public MethodInvokingJobDetailFactoryBean detailFactoryBean(@Qualifier(value = "timerTask") TimerTask task) {
         MethodInvokingJobDetailFactoryBean jobDetail = new MethodInvokingJobDetailFactoryBean();
         jobDetail.setConcurrent(true);
-        jobDetail.setName("Redis Task");
+        jobDetail.setName("base.Redis Task");
         jobDetail.setGroup("Redis_Group");
         jobDetail.setTargetObject(task);
         jobDetail.setTargetMethod("runSchedule");
@@ -38,7 +38,7 @@ public class SchedulerConfig {
         trigger.setJobDetail(jobDetail);
         /** 每天早上9点,下午6点触发 */
         trigger.setCronExpression(CronExpression);
-        trigger.setName("Redis Trigger");
+        trigger.setName("base.Redis Trigger");
         return trigger;
     }
 

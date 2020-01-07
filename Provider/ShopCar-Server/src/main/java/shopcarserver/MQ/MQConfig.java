@@ -1,6 +1,6 @@
 package shopcarserver.MQ;
 
-import BaseMQ.MQEnum;
+import base.BaseMQ.MQEnum;
 import org.springframework.amqp.core.*;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;

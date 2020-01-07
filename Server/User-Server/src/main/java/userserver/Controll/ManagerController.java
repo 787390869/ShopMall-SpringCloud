@@ -1,6 +1,6 @@
 package userserver.Controll;
 
-import BaseWeb.ResultData;
+import base.BaseWeb.ResultData;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;

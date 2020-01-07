@@ -1,7 +1,7 @@
 package fileServer.Control;
 
-import BaseWeb.BaseController;
-import BaseWeb.ResultData;
+import base.BaseWeb.BaseController;
+import base.BaseWeb.ResultData;
 import com.alibaba.fastjson.JSONObject;
 import fileServer.Service.MainService;
 import fileServer.Utils.FileUtils;

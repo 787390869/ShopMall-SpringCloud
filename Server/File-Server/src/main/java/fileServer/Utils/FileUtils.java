@@ -1,6 +1,6 @@
 package fileServer.Utils;
 
-import BaseWeb.ResultData;
+import base.BaseWeb.ResultData;
 import fileServer.Config.Folders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

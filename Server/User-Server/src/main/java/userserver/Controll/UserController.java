@@ -1,7 +1,7 @@
 package userserver.Controll;
 
-import BaseWeb.BaseController;
-import BaseWeb.ResultData;
+import base.BaseWeb.BaseController;
+import base.BaseWeb.ResultData;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.ServiceInstance;
@@ -25,9 +25,7 @@ import userserver.Bean.*;
 import userserver.Dao.*;
 import userserver.Service.Interface.UserService;
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.URI;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.TimeUnit;

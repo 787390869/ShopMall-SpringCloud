@@ -1,6 +1,6 @@
 package userserver.Service.Interface;
 
-import BaseWeb.ResultData;
+import base.BaseWeb.ResultData;
 import userserver.Bean.User;
 
 /**

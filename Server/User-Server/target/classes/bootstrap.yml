@@ -4,6 +4,6 @@
 #  cloud:
 #    config:
 #      uri: http://localhost:9999/
-#      profile: Mysql-User, Redis, Conventional
+#      profile: Mysql-User, base.Redis, Conventional
 #      label: dev
 #      name: Config-Center

@@ -1,5 +1,6 @@
 package goodserver.Dao;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import goodserver.Bean.Goods;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -14,7 +15,7 @@ import java.util.List;
  **/
 @Repository
 @Mapper
-public interface GoodsMapper{
+public interface GoodsMapper {
 
     /** 根据表名查询数据 */
     @Select("select * from ${table} limit 0,#{number}")

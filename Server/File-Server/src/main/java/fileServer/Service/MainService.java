@@ -1,7 +1,7 @@
 package fileServer.Service;
 
-import BaseWeb.BaseService;
-import BaseWeb.ResultData;
+import base.BaseWeb.BaseService;
+import base.BaseWeb.ResultData;
 import com.alibaba.fastjson.JSONObject;
 import com.github.tobato.fastdfs.domain.conn.FdfsWebServer;
 import com.github.tobato.fastdfs.domain.fdfs.MetaData;
@@ -11,25 +11,19 @@ import com.github.tobato.fastdfs.domain.proto.storage.DownloadByteArray;
 import com.github.tobato.fastdfs.exception.FdfsServerException;
 import com.github.tobato.fastdfs.exception.FdfsUnsupportStorePathException;
 import com.github.tobato.fastdfs.service.FastFileStorageClient;
-import fileServer.Config.Folders;
-import fileServer.Scheduler.TimerTask;
 import fileServer.Utils.FileUtils;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.scheduling.config.ScheduledTask;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.net.Socket;
 import java.net.URL;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @Author: ZhangZiQiang

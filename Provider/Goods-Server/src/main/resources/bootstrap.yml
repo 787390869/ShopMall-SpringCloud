@@ -5,7 +5,7 @@
 #    config:
 #      uri: http://127.0.0.1:9999/
 #      label: dev
-#      profile: Mysql-Mybatis, RabbitMQ-General, Conventional, Authorization, Redis
+#      profile: Mysql-Mybatis, RabbitMQ-General, Conventional, Authorization, base.Redis
 #      name: Config-Center
 #  datasource:
 #    url: jdbc:mysql://127.0.0.1/air?serverTimezone=UTC

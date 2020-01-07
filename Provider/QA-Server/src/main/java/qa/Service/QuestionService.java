@@ -1,6 +1,8 @@
 package qa.Service;
 
-import BaseWeb.ResultData;
+import base.BaseWeb.ResultData;
+import base.Client.Goods.GoodsClient;
+import base.Client.User.UserClient;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -9,8 +11,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import qa.Client.GoodsClient;
-import qa.Client.UserClient;
 import qa.Entity.Answer;
 import qa.Entity.Comment;
 import qa.Entity.Reply;
