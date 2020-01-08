@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -19,7 +20,7 @@ import java.util.Date;
 @Builder
 @Entity
 @Table(name = "cancel_order")
-public class CancelOrder {
+public class CancelOrder implements Serializable {
 
     /** 退订单已创建 */
     public final static int CANCEL_ORDER_CREATED = 1;
@@ -56,6 +57,10 @@ public class CancelOrder {
 
     @Column(name = "updator")
     private String updator;
+
+    @OneToOne(cascade = CascadeType.MERGE)
+    @JoinColumn(name = "order_id", referencedColumnName = "id", insertable = false, updatable = false, table = "cancel_order")
+    private Order order;
 
 }
 

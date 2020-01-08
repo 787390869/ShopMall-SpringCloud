@@ -4,7 +4,9 @@ import base.BaseWeb.BaseController;
 import base.BaseWeb.ResultData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import shopcarserver.Bean.CancelOrder;
 import shopcarserver.Bean.Order;
+import shopcarserver.Dao.CancelOrderRepository;
 import shopcarserver.Dao.OrderRepository;
 import shopcarserver.Service.OrderService;
 
@@ -23,11 +25,17 @@ public class OrderController extends BaseController {
     @Autowired
     private OrderService orderService;
 
+    @Autowired
+    private CancelOrderRepository cancelOrderRepository;
+
     @PostMapping("create")
     public ResultData<String> createOrder(String tableName, int goodsId, @RequestParam(value = "remark", required = false) String remark) {
         Order order = Order.builder().code(this.generateCode()).tableName(toPinyin(tableName))
                 .goodsId(goodsId).status(Order.ORDER_UNPAID).remark(remark).createTime(new Date())
                 .creator(getUserName()).build();
+       /* CancelOrder cancelOrder = CancelOrder.builder()
+                .orderId(order.getId()).createTime(new Date()).creator(order.getCreator()).status(1).build();
+        order.setCancelOrder(cancelOrder);*/
         return orderService.createOrder(order);
     }
 
@@ -39,6 +47,11 @@ public class OrderController extends BaseController {
     protected String generateCode() {
         String id = UUID.randomUUID().toString();
         return id.substring(0,4) + sdf.format(new Date()) + id.substring((id.length()-4));
+    }
+
+    @GetMapping("all")
+    public List<CancelOrder> all() {
+        return cancelOrderRepository.findAll();
     }
 
 }

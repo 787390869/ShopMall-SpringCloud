@@ -14,12 +14,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 @Component
 public interface FinancialClient {
 
+    /** 支付成功创建财务订单 */
     @PostMapping("financial/create/{orderId}/{income}/{creator}")
     ResultData<Integer> create(@PathVariable("orderId") Long orderId, @PathVariable("income") String income,
                                       @PathVariable("creator") String creator);
 
+    /** 修改财务单状态 */
     @PostMapping("financial/modify_status/{orderId}/{status}/{outcome}")
-    public ResultData modify(@PathVariable("orderId")Long orderId, @PathVariable("status") int status, @PathVariable("outcome")String outcome);
+    ResultData modify(@PathVariable("orderId")Long orderId, @PathVariable("status") int status, @PathVariable("outcome")String outcome);
 
 
 }

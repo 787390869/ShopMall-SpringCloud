@@ -1,6 +1,7 @@
 package shopcarserver.Bean;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,6 +11,7 @@ import org.springframework.validation.annotation.Validated;
 
 import javax.persistence.*;
 import javax.validation.constraints.Pattern;
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -22,7 +24,7 @@ import java.util.Date;
 @Builder
 @Entity
 @Table(name = "t_order")
-public class Order {
+public class Order implements Serializable {
 
     /** 待支付 */
     public final static int ORDER_UNPAID = 0;
@@ -82,6 +84,10 @@ public class Order {
 
     @Column(name = "platform")
     private int platform;
+
+    @OneToOne(cascade = CascadeType.MERGE, mappedBy = "order")
+    @JsonIgnore
+    private CancelOrder cancelOrder;
 
 }
 

@@ -11,6 +11,7 @@ import org.springframework.util.ObjectUtils;
 import shopcarserver.Bean.CancelOrder;
 import shopcarserver.Bean.Order;
 import shopcarserver.Dao.CancelOrderRepository;
+import shopcarserver.Dao.OrderRepository;
 
 import java.util.Date;
 import java.util.Optional;
@@ -24,6 +25,9 @@ public class CancelOrderService {
 
     @Autowired
     private CancelOrderRepository cancelOrderRepository;
+
+    @Autowired
+    private OrderRepository orderRepository;
 
     @Autowired
     private FinancialClient financialClient;
@@ -62,6 +66,10 @@ public class CancelOrderService {
     public ResultData<String> modify(Long id, int status) {
         CancelOrder cancelOrder = cancelOrderRepository.findById(id).get();
         cancelOrder.setStatus(status);
+        if (cancelOrder.getStatus() == CancelOrder.CANCEL_ORDER_AUDIT && status == CancelOrder.CANCEL_ORDER_COMPLETED) {
+            financialClient.modify(cancelOrder.getOrderId(), status,
+                    Double.toString(Double.parseDouble(cancelOrder.getOrder().getPaid()) * 0.8));
+        }
         return new ResultData<>("更改成功");
     }
 
