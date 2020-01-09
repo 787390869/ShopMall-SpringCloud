@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import userserver.Bean.User;
 import userserver.Service.UserManageService;
 
 /**
@@ -34,18 +35,20 @@ public class ManagerController {
 
     @PreAuthorize("hasAnyAuthority('ROLE_Admin')")
     @PostMapping("doChangeUserRole")
-    public ResultData changeRole(@Param("info")String info) {
+    public ResultData changeRole(@RequestParam("info") String info) {
         return userManageService.changeRole(info);
     }
+
 
     @PreAuthorize("hasAnyAuthority('ROLE_Admin')")
     @PostMapping("doChangeRolePermission")
     public ResultData changePermission(@Param("info")String info){return userManageService.changePermission(info);}
 
     @PreAuthorize("hasAnyAuthority('ROLE_Admin')")
-    @GetMapping("rolePermission")
-    public ResultData<JSONObject> rolePermissionData(){
-        return userManageService.findAllRolePermission();
+    @GetMapping("rolePermission/{pageNum}/{pageSize}")
+    public ResultData<JSONObject> rolePermissionData(@PathVariable("pageNum") int pageNum,@PathVariable("pageSize") int pageSize){
+        return userManageService.findAllRolePermission(pageNum, pageSize);
     }
+
 }
 

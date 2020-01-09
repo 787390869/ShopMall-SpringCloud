@@ -18,5 +18,5 @@ public interface PermissionRepository extends JpaRepository<Permission, Long> {
     @Override
     List<Permission> findAll();
 
-    Permission findByEnName(String enname);
+    Permission findByEnname(String enname);
 }

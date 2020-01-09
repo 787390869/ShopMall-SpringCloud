@@ -1,6 +1,7 @@
 package userserver.Bean;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -15,6 +16,7 @@ import javax.persistence.*;
 @Table(name = "user_role")
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class UserRole {
 
     @Id
@@ -27,6 +29,4 @@ public class UserRole {
     @Column(name = "role_id")
     private Long roleId;
 
-    @Column(name = "available")
-    private int available;
 }

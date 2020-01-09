@@ -78,14 +78,14 @@ public class TokenController extends BaseController {
 
         // 设置远程调用的容错处理
         HttpEntity<MultiValueMap<String,String>> httpEntity  = new HttpEntity<>(body,header);
-        restTemplate.setErrorHandler(new DefaultResponseErrorHandler(){
+       /* restTemplate.setErrorHandler(new DefaultResponseErrorHandler(){
             @Override
             protected void handleError(ClientHttpResponse response, HttpStatus statusCode) throws IOException {
                 if(response.getRawStatusCode()!=400 && response.getRawStatusCode()!=401){
                     super.handleError(response);
                 }
             }
-        });
+        });*/
 
         // 远程调用,获取token信息
         ResponseEntity<Map> exchange = restTemplate.exchange(authUrl, HttpMethod.POST,httpEntity,Map.class);

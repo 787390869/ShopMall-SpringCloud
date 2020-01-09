@@ -1,12 +1,16 @@
 package userserver.Bean;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @Author: ZhangZiQiang
@@ -17,10 +21,9 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Permission {
+public class Permission implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @Column(name = "parent_id")
@@ -30,7 +33,7 @@ public class Permission {
     private String name;
 
     @Column(name = "enname")
-    private String enName;
+    private String enname;
 
     @Column(name = "url")
     private String url;
@@ -39,17 +42,22 @@ public class Permission {
     private String description;
 
     @Column(name = "created")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT + 8")
     private Date createTime;
 
     @Column(name = "creator")
     private String creator;
 
     @Column(name = "updated")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT + 8")
     private Date updateTime;
 
     @Column(name = "updator")
     private String updator;
+
+    @ManyToMany(mappedBy = "permissions")
+    @JsonIgnore
+    private List<Role> roles;
+
 }
 

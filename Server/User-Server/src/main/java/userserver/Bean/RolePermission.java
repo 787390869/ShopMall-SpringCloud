@@ -1,6 +1,7 @@
 package userserver.Bean;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -15,20 +16,18 @@ import javax.persistence.*;
 @AllArgsConstructor
 @Entity
 @Table(name = "role_permission")
+@Builder
 public class RolePermission {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private  Long id;
 
     @Column(name = "role_id")
     private Long roleId;
 
     @Column(name = "permission_id")
     private Long permissionId;
-
-    @Column(name = "available")
-    private int available;
 
 }
 

@@ -2,8 +2,10 @@ package userserver.Service;
 
 import base.BaseWeb.BaseService;
 import base.BaseWeb.ResultData;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -12,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import userserver.Bean.*;
 import userserver.Dao.*;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.*;
@@ -26,7 +27,7 @@ import java.util.stream.Collectors;
 public class UserManageService extends BaseService {
 
     @Autowired
-    private UserDao userDao;
+    private UserRepository userRepository;
 
     @Autowired
     private RoleRepository roleRepository;
@@ -35,16 +36,7 @@ public class UserManageService extends BaseService {
     private PermissionRepository permissionRepository;
 
     @Autowired
-    private UserRoleDao userRoleDao;
-
-    @PersistenceContext
-    private EntityManager entityManager;
-
-    @Autowired
     private UserRoleRepository userRoleRepository;
-
-    @Autowired
-    private UserRoleDaoImpl userRoleDaoImpl;
 
     @Autowired
     private RolePermissionRepository rolePermissionRepository;
@@ -56,7 +48,7 @@ public class UserManageService extends BaseService {
       */
     public ResultData<JSONObject> findAllUser(int pageNum, int pageSize) {
         Pageable pageable = PageRequest.of(pageNum, pageSize);
-        Page<User> users = userDao.findAll(pageable);
+        Page<User> users = userRepository.findAll(pageable);
         JSONObject jsonObject = new JSONObject();
         users.getContent().stream().forEach(c -> c.setPassword(encodeMd5(c.getPassword())));
         jsonObject.put("list", users.getContent());
@@ -70,46 +62,27 @@ public class UserManageService extends BaseService {
       * @Date: 2019/11/27 16:02
       */
     public ResultData<JSONObject> userRolePermissionData(int pageNum, int pageSize, String username) throws Exception{
-        List<String> roles = roleRepository.findAll().stream().map(r -> r.getEnName()).collect(Collectors.toList());
-        List<String> permissions = permissionRepository.findAll().stream().map(p -> p.getEnName()).collect(Collectors.toList());
-
-        if (username.equals("all")) {
-            username = null;
-        }
-        int start = (pageNum - 1) * pageSize;
-        int end = pageNum * pageSize;
-
-        List<Object[]> list = userRoleDaoImpl.findUserWithPermission(start, end, username);
-        List<UserEntity> permissionList = castEntity(list, UserEntity.class);
-        Map<String, List<UserEntity>> permissionMap = permissionList.stream().collect(Collectors.groupingBy(p -> p.getEnrole()));
-        Map<String, List<String>> permission = new HashMap<>();
-        permissionMap.keySet().forEach(p -> {
-            permission.put(p, permissionMap.get(p).stream().map(m -> m.getEnname()).collect(Collectors.toList()));
+        Pageable pageable = PageRequest.of((pageNum -1), pageSize);
+        Page<User> data = userRepository.findAll(pageable);
+        JSONObject  result = new JSONObject();
+        List<User> userList = data.getContent();
+        userList.stream().forEach(user -> {
+            Set<String> permissions = new HashSet<>();
+            Set<String> roles = new HashSet<>();
+            user.getRoles().stream().forEach(role -> {
+                roles.add(role.getEnname());
+                role.getPermissions().stream().forEach(permission -> {
+                    permissions.add(permission.getEnname());
+                });
+            });
+            user.setPermissions(permissions);
+            user.setMyRoles(roles);
         });
-
-        List<Object[]> daoList = userRoleDaoImpl.findUserWithRole(start, end, username);
-        List<UserEntity> roleList = castEntity(daoList, UserEntity.class);
-        Map<String, List<UserEntity>> roleMap = roleList.stream().collect(Collectors.groupingBy(r -> r.getEnrole()));
-        Map<String, List<String>> role = new HashMap<>();
-        roleMap.keySet().forEach(k -> {
-            role.put(k, roleMap.get(k).stream().map(r -> r.getEnname()).collect(Collectors.toList()));
-        });
-
-        LinkedList authorization = new LinkedList();
-        role.keySet().forEach(k -> {
-            Map map= new HashMap();
-            map.put("name", k);
-            map.put("permissions", permission.get(k));
-            map.put("roles", role.get(k));
-            map.put("id", userRoleDao.findIdByUserName(k));
-            authorization.add(map);
-        });
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("roles", roles);
-        jsonObject.put("permissions", permissions);
-        jsonObject.put("UserAuthorization", authorization);
-        jsonObject.put("count", authorization.size());
-        return new ResultData<>(jsonObject);
+        result.put("users", data.getContent());
+        result.put("count", data.getTotalPages());
+        result.put("roles", roleRepository.findAll().stream().map(m -> m.getEnname()).collect(Collectors.toSet()));
+        result.put("permissions", permissionRepository.findAll().stream().map(p -> p.getEnname()).collect(Collectors.toSet()));
+        return new ResultData<>(result);
     }
 
     /** 功能描述: 修改用户角色
@@ -119,27 +92,24 @@ public class UserManageService extends BaseService {
       */
     @Transactional(rollbackFor = Exception.class)
     public ResultData changeRole(String info) {
-        JSONObject infoObj = JSONObject.parseObject(info);
-        Long userId = Optional.ofNullable(infoObj.getLong("id")).orElse(-1L);
-        String roles= Optional.ofNullable(infoObj.getString("roles")).orElse("");
-        JSONArray roleArray = JSONArray.parseArray(roles);
-
-        List<String> allRoles = roleRepository.findAll().stream().map(r -> r.getEnName()).collect(Collectors.toList());
-
-        roleArray.stream().forEach(r -> {
-            UserRole userRole = userRoleRepository.findByUserIdAndRoleId(userId, roleRepository.findByEnName((String) r).getId());
-            userRole.setAvailable(1);
-            userRoleRepository.save(userRole);
+        JSONObject infoObj = JSON.parseObject(info);
+        Long userId = infoObj.getLong("userId");
+        JSONArray roleArray = infoObj.getJSONArray("roles");
+        List<String> roles = userRoleRepository.findByUserId(userId).stream()
+                .map(r -> roleRepository.findById(r.getRoleId()).get().getEnname()).collect(Collectors.toList());
+        roles.stream().forEach(role -> {
+            if(!roleArray.contains(role)) {
+                Role oldRole = roleRepository.findByEnname(role);
+                userRoleRepository.deleteByUserIdAndRoleId(userId, oldRole.getId());
+            }
         });
-
-        allRoles.stream().forEach(allRole -> {
-            if(!roleArray.contains(allRole)) {
-                UserRole userRole = userRoleRepository.findByUserIdAndRoleId(userId, roleRepository.findByEnName(allRole).getId());
-                userRole.setAvailable(0);
+        roleArray.stream().forEach(role -> {
+            Long roleId = roleRepository.findByEnname(role.toString()).getId();
+            if (!roles.contains(role)) {
+                UserRole userRole = UserRole.builder().userId(userId).roleId(roleId).build();
                 userRoleRepository.save(userRole);
             }
         });
-
         return new ResultData(ResultData.RESULT_CODE_SUCCESS, ResultData.MESSAGE_UPDATE_SUCCESS);
     }
 
@@ -155,22 +125,23 @@ public class UserManageService extends BaseService {
         String roles= Optional.ofNullable(infoObj.getString("permissions")).orElse("");
         JSONArray permissionArray = JSONArray.parseArray(roles);
 
-        List<String> allPermissions = permissionRepository.findAll().stream().map(p -> p.getEnName()).collect(Collectors.toList());
+        List<String> permissions = rolePermissionRepository.findByRoleId(roleId).stream()
+                .map(p -> permissionRepository.findById(p.getPermissionId()).get().getEnname()).collect(Collectors.toList());
 
-        permissionArray.stream().forEach(p -> {
-            RolePermission rolePermission = rolePermissionRepository.findByRoleIdAndPermissionId(roleId, permissionRepository.findByEnName((String) p).getId());
-            rolePermission.setAvailable(1);
-            rolePermissionRepository.save(rolePermission);
-        });
-
-        allPermissions.stream().forEach(allPermission -> {
-            if(!permissionArray.contains(allPermission)) {
-                RolePermission rolePermission = rolePermissionRepository.findByRoleIdAndPermissionId(roleId, permissionRepository.findByEnName(allPermission).getId());
-                rolePermission.setAvailable(0);
-                rolePermissionRepository.save(rolePermission);
+        permissions.stream().forEach(p -> {
+            if (!permissionArray.contains(p)) {
+                Permission oldPermission = permissionRepository.findByEnname(p);
+                rolePermissionRepository.deleteByRoleIdAndPermissionId(roleId, oldPermission.getId());
             }
         });
 
+        permissionArray.stream().forEach(p -> {
+            Long permissionId = permissionRepository.findByEnname(p.toString()).getId();
+            if (!permissions.contains(p)) {
+                RolePermission rolePermission = RolePermission.builder().roleId(roleId).permissionId(permissionId).build();
+                rolePermissionRepository.save(rolePermission);
+            }
+        });
         return new ResultData(ResultData.RESULT_CODE_SUCCESS, ResultData.MESSAGE_UPDATE_SUCCESS);
     }
 
@@ -179,30 +150,25 @@ public class UserManageService extends BaseService {
       * @Author: ZhangZiQiang
       * @Date: 2019/11/29 11:18
       */
-    public ResultData<JSONObject> findAllRolePermission() {
-        List<String> roles = roleRepository.findAll().stream().map(r -> r.getName()).collect(Collectors.toList());
-        List<String> permissions = permissionRepository.findAll().stream().map(p -> p.getEnName()).collect(Collectors.toList());
-        JSONObject jsonObject = new JSONObject();
-
-        LinkedList authorization = new LinkedList();
-        roles.stream().forEach(role -> {
-            List<Object[]> daoList = userRoleDaoImpl.findRoleWithPermission(role);
-            Map map = new HashMap<>();
-            try {
-                List<RolePermissionEntity>  rolePermissionEntities = castEntity(daoList, RolePermissionEntity.class);
-                List<String> roleList = rolePermissionEntities.stream().map(rp -> rp.getEnname()).collect(Collectors.toList());
-                map.put("name", role);
-                map.put("permissions", roleList);
-                map.put("id", roleRepository.findByName(role).getId());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            authorization.add(map);
+    public ResultData<JSONObject> findAllRolePermission(int pageNum, int pageSize) {
+        Pageable pageable = PageRequest.of((pageNum -1), pageSize);
+        Page<Role> data = roleRepository.findAll(pageable);
+        data.getContent().stream().forEach(role -> {
+            role.setUsers(new ArrayList<>());
+            Set<String> permissionSet = new HashSet<>();
+            role.getPermissions().stream().forEach(permission -> {
+                permissionSet.add(permissionRepository.findById(permission.getId()).get().getEnname());
+            });
+            role.setMyPermissions(permissionSet);
         });
-        jsonObject.put("authorizations", authorization);
-        jsonObject.put("roles", roles);
-        jsonObject.put("permissions", permissions);
-        return new ResultData<>(jsonObject);
+        List<String> permissions = permissionRepository.findAll().stream()
+                .map(permission -> permission.getEnname()).collect(Collectors.toList());
+        JSONObject result = new JSONObject();
+        result.put("users", data.getContent());
+        result.put("permissions", permissions);
+        result.put("count", data.getTotalPages());
+        return new ResultData<>(result);
     }
+
 }
 

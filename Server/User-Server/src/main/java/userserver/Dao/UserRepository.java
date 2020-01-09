@@ -12,7 +12,7 @@ import java.util.List;
  * @author 张自强
  */
 @Repository
-public interface UserDao extends JpaRepository<User,Long> {
+public interface UserRepository extends JpaRepository<User,Long> {
     
     /**
       * 根据用户名查询用户

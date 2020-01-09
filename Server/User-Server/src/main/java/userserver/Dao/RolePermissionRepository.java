@@ -2,7 +2,10 @@ package userserver.Dao;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import userserver.Bean.Permission;
 import userserver.Bean.RolePermission;
+
+import java.util.List;
 
 /**
  * @Author: ZhangZiQiang
@@ -10,5 +13,8 @@ import userserver.Bean.RolePermission;
  **/
 @Repository
 public interface RolePermissionRepository extends JpaRepository<RolePermission, Long> {
-    RolePermission findByRoleIdAndPermissionId(Long roleId, Long permissionId);
+
+    List<RolePermission> findByRoleId(Long roleId);
+
+    void deleteByRoleIdAndPermissionId(Long roleId, Long permissionId);
 }

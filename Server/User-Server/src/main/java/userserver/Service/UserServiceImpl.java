@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import userserver.Bean.User;
 import userserver.Bean.UserRole;
-import userserver.Dao.UserDao;
+import userserver.Dao.UserRepository;
 import userserver.Dao.UserRoleRepository;
 import userserver.Service.Interface.UserService;
 
@@ -19,7 +19,7 @@ import userserver.Service.Interface.UserService;
 public class UserServiceImpl extends BaseService implements UserService {
 
     @Autowired
-    private UserDao userDao;
+    private UserRepository userRepository;
 
     @Autowired
     private UserRoleRepository userRoleRepository;
@@ -32,7 +32,7 @@ public class UserServiceImpl extends BaseService implements UserService {
       */
     @Override
     public User findByUsername(String username) {
-        return userDao.findByUsername(username);
+        return userRepository.findByUsername(username);
     }
 
     /**
@@ -44,12 +44,10 @@ public class UserServiceImpl extends BaseService implements UserService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void addUser(User user) {
-        userDao.save(user);
-        Long id = Long.parseLong(findByUsername(user.getUsername()).getUserid());
+        userRepository.save(user);
         UserRole userRole = new UserRole();
-        userRole.setUserId(id);
+        userRole.setUserId(1L);
         userRole.setRoleId(2L);
-        userRole.setAvailable(1);
         userRoleRepository.save(userRole);
     }
 
@@ -60,7 +58,7 @@ public class UserServiceImpl extends BaseService implements UserService {
       */
     @Override
     public ResultData<User> findUserByUsername(String username) {
-        User user = userDao.findByUsername(username);
+        User user = userRepository.findByUsername(username);
         user.setPassword("");
         return new ResultData<>(user);
     }
