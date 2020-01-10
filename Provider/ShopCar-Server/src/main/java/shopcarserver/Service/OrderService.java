@@ -5,16 +5,26 @@ import base.BaseWeb.ResultData;
 import base.Client.Goods.GoodsClient;
 import base.Client.QA.FinancialClient;
 import base.Redis.RedisLock;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.codingapi.txlcn.tc.annotation.DTXPropagation;
 import com.codingapi.txlcn.tc.annotation.LcnTransaction;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import shopcarserver.Bean.CancelOrder;
 import shopcarserver.Bean.Order;
+import shopcarserver.Dao.Impl.OrderRepositoryImpl;
 import shopcarserver.Dao.OrderRepository;
+
+import java.util.Date;
+import java.util.Optional;
 
 /**
  * @Author: ZhangZiQiang
@@ -25,6 +35,9 @@ public class OrderService extends BaseService {
 
     @Autowired
     private OrderRepository orderRepository;
+
+    @Autowired
+    private OrderRepositoryImpl orderRepositoryImpl;
 
     @Autowired
     private GoodsClient goodsClient;
@@ -61,7 +74,7 @@ public class OrderService extends BaseService {
     @Transactional(rollbackFor = Exception.class)
     @RedisLock(key = "code", type = "basic", acquireTimeout = 5, timeout = 5)
     @LcnTransaction(propagation = DTXPropagation.REQUIRED)
-    public ResultData<String> modify(String code, int status, String paid) throws Exception{
+    public ResultData<String> modify(String code, int status, String paid, int platform) throws Exception{
         Order order = orderRepository.findByCode(code);
         String message = "";
         if (ObjectUtils.isEmpty(order)) {
@@ -77,9 +90,10 @@ public class OrderService extends BaseService {
                 }
                 break;
             case Order.ORDER_PAID:
-                if (order.getStatus() == Order.ORDER_UNPAID && !StringUtils.isEmpty(paid)) {
+                if (order.getStatus() == Order.ORDER_UNPAID && !StringUtils.isEmpty(paid) && !StringUtils.isEmpty(platform)) {
                     order.setPaid(paid);
                     message = "支付成功";
+                    order.setPlatform(platform);
                     financialClient.create(order.getId(), order.getPaid(), order.getCreator());
                 } else if(order.getStatus() != Order.ORDER_PAID){
                     status = Order.ORDER_EXCEPTION;
@@ -113,6 +127,36 @@ public class OrderService extends BaseService {
         order.setStatus(status);
         orderRepository.save(order);
         return new ResultData<>(message);
+    }
+
+    /** 功能描述: 订单查询
+      * @Param: [searchInfo, pageNum, pageSize]
+      * @Author: ZhangZiQiang
+      * @Date: 2020/1/10 10:16
+      */
+    public ResultData<JSONObject> search(String searchInfo, int pageNum, int pageSize) {
+        JSONObject infoObj = JSON.parseObject(searchInfo);
+        String code = Optional.ofNullable(infoObj.getString("code")).orElse(null);
+        int status = Optional.ofNullable(infoObj.getInteger("status")).orElse(-1);
+        String tbName = Optional.ofNullable(infoObj.getString("tb")).orElse(null);
+        JSONArray createTimeArray = Optional.ofNullable(infoObj.getJSONArray("date")).orElse(null);
+        String dateFrom = null;
+        String dateTo = null;
+        if (!StringUtils.isEmpty(tbName)) {
+            tbName = toPinyin(tbName);
+        }
+        if (createTimeArray != null) {
+            dateFrom = createTimeArray.get(0).toString();
+            dateTo = createTimeArray.get(1).toString();
+        }
+
+        JSONObject jsonObject = new JSONObject();
+        Pageable pageable = PageRequest.of((pageNum - 1), pageSize);
+
+        Page<Order> page = orderRepositoryImpl.searchList(code, status, tbName, dateFrom,  dateTo, pageable);
+        jsonObject.put("orders", page.getContent());
+        jsonObject.put("count", page.getTotalPages());
+        return new ResultData<>(jsonObject);
     }
 
     /** 功能描述: 平台

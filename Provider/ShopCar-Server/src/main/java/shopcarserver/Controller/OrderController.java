@@ -2,6 +2,7 @@ package shopcarserver.Controller;
 
 import base.BaseWeb.BaseController;
 import base.BaseWeb.ResultData;
+import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import shopcarserver.Bean.CancelOrder;
@@ -33,25 +34,24 @@ public class OrderController extends BaseController {
         Order order = Order.builder().code(this.generateCode()).tableName(toPinyin(tableName))
                 .goodsId(goodsId).status(Order.ORDER_UNPAID).remark(remark).createTime(new Date())
                 .creator(getUserName()).build();
-       /* CancelOrder cancelOrder = CancelOrder.builder()
-                .orderId(order.getId()).createTime(new Date()).creator(order.getCreator()).status(1).build();
-        order.setCancelOrder(cancelOrder);*/
         return orderService.createOrder(order);
     }
 
     @PostMapping("modify_status")
-    public ResultData<String> modify(String code, int status, @RequestParam(value = "paid", required = false) String paid) throws Exception{
-        return orderService.modify(code, status, paid);
+    public ResultData<String> modify(String code, int status,
+                                     @RequestParam(value = "paid", required = false) String paid,
+                                     @RequestParam(value = "platform", required = false) int platform) throws Exception{
+        return orderService.modify(code, status, paid, platform);
+    }
+
+    @GetMapping("list")
+    public ResultData<JSONObject> list(String searchInfo, int pageNum, int pageSize) {
+        return orderService.search(searchInfo, pageNum, pageSize);
     }
 
     protected String generateCode() {
         String id = UUID.randomUUID().toString();
         return id.substring(0,4) + sdf.format(new Date()) + id.substring((id.length()-4));
-    }
-
-    @GetMapping("all")
-    public List<CancelOrder> all() {
-        return cancelOrderRepository.findAll();
     }
 
 }

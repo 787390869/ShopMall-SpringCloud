@@ -4,10 +4,13 @@ package goodserver.Controll;
 import base.BaseWeb.ResultData;
 import base.Client.Goods.GoodsClient;
 import com.alibaba.fastjson.JSONObject;
+import goodserver.Bean.Goods;
 import goodserver.Service.GoodsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @author 张自强
@@ -45,6 +48,11 @@ public class GoodsController {
     @GetMapping("getPrice/{table}/{id}")
     public ResultData<String> getPrice(@PathVariable("table")String table, @PathVariable("id") int id) {
         return goodsService.getPrice(table, id);
+    }
+
+    @GetMapping("allGoods")
+    public ResultData<List<String>> allGoods() {
+        return goodsService.allGoods();
     }
 
 }

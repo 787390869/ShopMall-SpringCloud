@@ -2,15 +2,21 @@ package shopcarserver.Service;
 
 import base.BaseWeb.ResultData;
 import base.Client.QA.FinancialClient;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.codingapi.txlcn.tc.annotation.DTXPropagation;
 import com.codingapi.txlcn.tc.annotation.LcnTransaction;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 import shopcarserver.Bean.CancelOrder;
 import shopcarserver.Bean.Order;
 import shopcarserver.Dao.CancelOrderRepository;
+import shopcarserver.Dao.Impl.CancelOrderRepositoryImpl;
 import shopcarserver.Dao.OrderRepository;
 
 import java.util.Date;
@@ -28,6 +34,9 @@ public class CancelOrderService {
 
     @Autowired
     private OrderRepository orderRepository;
+
+    @Autowired
+    private CancelOrderRepositoryImpl cancelOrderRepositoryImpl;
 
     @Autowired
     private FinancialClient financialClient;
@@ -71,6 +80,27 @@ public class CancelOrderService {
                     Double.toString(Double.parseDouble(cancelOrder.getOrder().getPaid()) * 0.8));
         }
         return new ResultData<>("更改成功");
+    }
+
+    /** 功能描述: 退订单列表查询
+      * @Param: [searchInfo, pageNum, pageSize]
+      * @Author: ZhangZiQiang
+      * @Date: 2020/1/10 10:54
+      */
+    public ResultData<JSONObject> search(String searchInfo, int pageNum, int pageSize) {
+        JSONObject infoObj = JSON.parseObject(searchInfo);
+        String code = Optional.ofNullable(infoObj.getString("code")).orElse(null);
+        int status = Optional.ofNullable(infoObj.getInteger("status")).orElse(-1);
+        Date createTime = Optional.ofNullable(infoObj.getDate("date")).orElse(null);
+
+        JSONObject jsonObject = new JSONObject();
+        Pageable pageable = PageRequest.of((pageNum - 1), pageSize);
+
+        Page<CancelOrder> page = cancelOrderRepositoryImpl.search(code, "", "", status, pageable);
+
+        jsonObject.put("cancelOrders", page.getContent());
+        jsonObject.put("count", page.getTotalPages());
+        return new ResultData<>(jsonObject);
     }
 
 

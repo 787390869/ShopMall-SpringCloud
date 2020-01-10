@@ -33,4 +33,8 @@ public interface GoodsMapper {
     @Select("select * from ${table} where id = #{id}")
     Goods findByIdAndGoodsname(@Param("id")int id, @Param("table")String tableName);
 
+    /** 所有商品 */
+    @Select("select name from test")
+    List<String> allGoods();
+
 }

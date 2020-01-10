@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ClassUtils;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -52,7 +53,7 @@ public class GoodsService extends BaseService {
         String tableName = toPinyin(goodName);
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("goods", goodsMapper
-                .findList(tableName, orderWord, order, pageNum*pageSize, (pageNum +1) * pageSize));
+                .findList(tableName, orderWord, order, (pageNum - 1)*pageSize, pageNum * pageSize));
         jsonObject.put("count", goodsMapper.count(tableName));
         ResultData<JSONObject> resultData = new ResultData(1, "查询成功", jsonObject);
         return resultData;
@@ -103,6 +104,15 @@ public class GoodsService extends BaseService {
       */
     public ResultData<String> getPrice(String table, int id) {
         return new ResultData<>(goodsMapper.findByIdAndGoodsname(id, toPinyin(table)).getPrice());
+    }
+
+    /** 功能描述: 查询所有商品
+      * @Param: []
+      * @Author: ZhangZiQiang
+      * @Date: 2020/1/10 14:41
+      */
+    public ResultData<List<String>> allGoods() {
+        return new ResultData<List<String>>(goodsMapper.allGoods());
     }
 
 }
