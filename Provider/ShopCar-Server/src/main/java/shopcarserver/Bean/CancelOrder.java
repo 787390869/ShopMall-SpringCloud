@@ -31,9 +31,6 @@ public class CancelOrder implements Serializable {
     /** 退订单已退订 */
     public final static int CANCEL_ORDER_COMPLETED = 3;
 
-    /** 无需审核最大值 */
-    public final static Double AUDIT_REQUIRED_PRICE = 1000.00;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

@@ -1,17 +1,25 @@
 package shopcarserver.Dao.Impl;
 
+import com.alibaba.fastjson.JSONObject;
 import org.aspectj.lang.annotation.Pointcut;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 import shopcarserver.Bean.Order;
+import shopcarserver.Dao.OrderRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -26,48 +34,33 @@ public class OrderRepositoryImpl {
     @PersistenceContext
     private EntityManager entityManager;
 
-    public Page<Order> searchList(String code, int status, String tbName, String dateFrom, String dateTo, Pageable pageable) {
-        StringBuilder dataSql = new StringBuilder("select * from t_order ");
-        StringBuilder countSql = new StringBuilder("select count(1) from t_order ");
-        StringBuilder whereSql = new StringBuilder("where 1 = 1 ");
+    @Autowired
+    @Lazy
+    private OrderRepository orderRepository;
 
-        if (status != -1) {
-            whereSql.append("and status = :status ");
-        }
-        if (!StringUtils.isEmpty(tbName)) {
-            whereSql.append("and tb_name = :tbName ");
-        }
-        if (!StringUtils.isEmpty(code)) {
-            whereSql.append("and code = :code ");
-        }
-        if (!StringUtils.isEmpty(dateFrom) && !StringUtils.isEmpty(dateTo)) {
-            whereSql.append("and create_time >= :dateFrom and create_time <= :dateTo ");
-        }
-        dataSql.append(whereSql).append("order by create_time desc");
-
-        Query dataQuery = entityManager.createNativeQuery(dataSql.toString(), Order.class);
-        Query countQuery = entityManager.createNativeQuery(countSql.toString());
-
-        if (status != -1) {
-            dataQuery.setParameter("status", status);
-        }
-        if (!StringUtils.isEmpty(tbName)) {
-            dataQuery.setParameter("tbName", tbName);
-        }
-        if (!StringUtils.isEmpty(code)) {
-            dataQuery.setParameter("code", code);
-        }
-        if (!StringUtils.isEmpty(dateFrom) && !StringUtils.isEmpty(dateTo)) {
-            dataQuery.setParameter("dateFrom", dateFrom);
-            dataQuery.setParameter("dateTo", dateTo);
-        }
-        dataQuery.setFirstResult((int) pageable.getOffset());
-        dataQuery.setMaxResults(pageable.getPageSize());
-        BigInteger count = (BigInteger) countQuery.getSingleResult();
-        Long total = count.longValue();
-
-        List<Order> content = total > pageable.getOffset() ? dataQuery.getResultList() : Collections.EMPTY_LIST;
-        return new PageImpl<>(content, pageable, total);
+    /** 功能描述: 动态sql查询
+      * @Param: [code, status, tbName, dateFrom, dateTo]
+      * @Author: ZhangZiQiang
+      * @Date: 2020/1/13 11:11
+      */
+    public Page<Order> selectOrder(String code, int status, String dateFrom, String dateTo, Pageable pageable) {
+        Specification<Order> orderSpecification = (Specification<Order>) (Root<Order> root, CriteriaQuery<?> query, CriteriaBuilder cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            if (!StringUtils.isEmpty(code)) {
+                predicates.add(cb.equal(root.get("code").as(String.class), code));
+            }
+            if (status != -1) {
+                predicates.add(cb.equal(root.get("status").as(Integer.class), status));
+            }
+            if (!StringUtils.isEmpty(dateFrom) && !StringUtils.isEmpty(dateTo)) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("createTime").as(String.class), dateFrom));
+                predicates.add(cb.lessThanOrEqualTo(root.get("createTime").as(String.class), dateTo));
+            }
+            Predicate[] pre = new Predicate[predicates.size()];
+            query.orderBy(cb.desc(root.get("createTime")));
+            return query.where(predicates.toArray(pre)).getRestriction();
+        };
+        return orderRepository.findAll(orderSpecification, pageable);
     }
 
 }

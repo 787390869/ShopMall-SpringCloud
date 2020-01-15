@@ -3,6 +3,7 @@ package base.Client.QA;
 import base.BaseWeb.ResultData;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
@@ -23,5 +24,7 @@ public interface FinancialClient {
     @PostMapping("financial/modify_status/{orderId}/{status}/{outcome}")
     ResultData modify(@PathVariable("orderId")Long orderId, @PathVariable("status") int status, @PathVariable("outcome")String outcome);
 
-
+    /** 获取财务订单 */
+    @GetMapping("financial/getOne/{orderId}")
+    ResultData<String> getOne(@PathVariable("orderId") Long orderId);
 }

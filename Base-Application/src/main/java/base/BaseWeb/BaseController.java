@@ -8,9 +8,14 @@ import net.sourceforge.pinyin4j.format.HanyuPinyinCaseType;
 import net.sourceforge.pinyin4j.format.HanyuPinyinOutputFormat;
 import net.sourceforge.pinyin4j.format.HanyuPinyinToneType;
 import net.sourceforge.pinyin4j.format.exception.BadHanyuPinyinOutputFormatCombination;
+import org.apache.commons.codec.binary.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -24,6 +29,8 @@ import java.util.stream.Collectors;
 public class BaseController {
 
     protected DateFormat sdf = new SimpleDateFormat("MMddHHmmss");
+
+    public Logger log = LoggerFactory.getLogger(this.getClass());
 
     /** 获取用户名 */
     protected String getUserName() {

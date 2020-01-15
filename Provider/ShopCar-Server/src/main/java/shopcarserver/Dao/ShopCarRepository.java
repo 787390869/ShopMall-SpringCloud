@@ -22,7 +22,7 @@ public interface ShopCarRepository extends JpaRepository<ShopCar,Long> {
     int findByGoodnameAndNickname(String goodname, String nickname);
 
     @Query(nativeQuery = true, value = "select count('id') from shopcars where nickname=:nickname")
-    int findCountByNickname(String nickname);
+    int findCountByNickname(@Param("nickname") String nickname);
 
     @Query(nativeQuery = true, value = "select * from shopcars where nickname=:nickname and name like concat('%', :goodname , '%')")
     ShopCar findByNicknameAndGoodname(@Param("nickname") String nickname, @Param("goodname") String goodname);

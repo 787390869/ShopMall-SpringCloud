@@ -2,11 +2,9 @@ package qa.Control;
 
 import base.BaseWeb.BaseController;
 import base.BaseWeb.ResultData;
+import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import qa.Service.FinancialService;
 
 /**
@@ -26,10 +24,20 @@ public class FinancialController extends BaseController {
         return financialService.create(orderId, income, creator);
     }
 
+    @GetMapping("list")
+    public ResultData<JSONObject> list(String searchInfo, int pageNum, int pageSize) {
+        return financialService.searchList(searchInfo, pageNum, pageSize);
+    }
+
     @PostMapping("modify_status/{orderId}/{status}/{outcome}")
     public ResultData modify(@PathVariable("orderId")Long orderId, @PathVariable("status") int status,
                              @PathVariable("outcome")String outcome) {
         return financialService.modify(orderId, status, outcome);
+    }
+
+    @GetMapping("getOne/{orderId}")
+    public ResultData<String> getOne(@PathVariable("orderId") Long orderId) {
+        return financialService.getOne(orderId);
     }
 
 }

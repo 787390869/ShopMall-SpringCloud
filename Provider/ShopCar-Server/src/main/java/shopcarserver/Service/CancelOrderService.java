@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 import shopcarserver.Bean.CancelOrder;
 import shopcarserver.Bean.Order;
+import shopcarserver.Bean.OrderParam;
 import shopcarserver.Dao.CancelOrderRepository;
 import shopcarserver.Dao.Impl.CancelOrderRepositoryImpl;
 import shopcarserver.Dao.OrderRepository;
@@ -41,6 +42,9 @@ public class CancelOrderService {
     @Autowired
     private FinancialClient financialClient;
 
+    @Autowired
+    private OrderParamService orderParamService;
+
     /** 功能描述: 新建退订单
       * @Param: [order]
       * @Author: ZhangZiQiang
@@ -53,16 +57,35 @@ public class CancelOrderService {
         if (!ObjectUtils.isEmpty(co)) {
             return new ResultData<>(-1);
         }
+        OrderParam orderParam = orderParamService.getParam();
         CancelOrder cancelOrder = CancelOrder.builder()
                 .orderId(order.getId()).status(CancelOrder.CANCEL_ORDER_CREATED)
                 .createTime(new Date()).creator(order.getCreator()).build();
 
-        if (Double.parseDouble(order.getPaid()) > CancelOrder.AUDIT_REQUIRED_PRICE) {
+        if (Double.parseDouble(order.getPaid()) > Double.parseDouble(orderParam.getMaxAuditPrice())) {
             cancelOrder.setStatus(CancelOrder.CANCEL_ORDER_AUDIT);
         } else {
             cancelOrder.setStatus(CancelOrder.CANCEL_ORDER_COMPLETED);
-            financialClient.modify(order.getId(), 3, Double.toString(Double.parseDouble(order.getPaid()) * 0.8));
+            financialClient.modify(order.getId(), 3, Double.toString(Double.parseDouble(order.getPaid()) *
+                    Double.parseDouble(orderParam.getUnsubPercent())));
         }
+        cancelOrderRepository.save(cancelOrder);
+        return new ResultData<>(cancelOrder.getStatus());
+    }
+
+    /** 功能描述: 支付宝支付超时创建退订单
+      * @Param: [order]
+      * @Author: ZhangZiQiang
+      * @Date: 2020/1/15 11:52
+      */
+    public ResultData<Integer> aliPayCreate(Order order) {
+        CancelOrder co = cancelOrderRepository.findByOrderId(order.getId());
+        if (!ObjectUtils.isEmpty(co)) {
+            return new ResultData<>(-1);
+        }
+        CancelOrder cancelOrder = CancelOrder.builder()
+                .orderId(order.getId()).status(CancelOrder.CANCEL_ORDER_COMPLETED)
+                .createTime(new Date()).creator(order.getCreator()).build();
         cancelOrderRepository.save(cancelOrder);
         return new ResultData<>(cancelOrder.getStatus());
     }

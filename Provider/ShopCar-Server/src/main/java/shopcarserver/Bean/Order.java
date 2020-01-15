@@ -13,6 +13,7 @@ import javax.persistence.*;
 import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @Author: ZhangZiQiang
@@ -57,17 +58,14 @@ public class Order implements Serializable {
     @Column(name = "code")
     private String code;
 
-    @Column(name = "tb_name")
-    private String tableName;
-
-    @Column(name = "goods_id")
-    private int goodsId;
-
     @Column(name = "status")
     private int status;
 
     @Column(name = "remark")
     private String remark;
+
+    @Transient
+    private String orderType;
 
     @Column(name = "create_time")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
@@ -84,6 +82,9 @@ public class Order implements Serializable {
 
     @Column(name = "platform")
     private int platform;
+
+    @OneToMany(cascade = CascadeType.MERGE, mappedBy = "order")
+    private List<OrderGoods> orderGoods;
 
     @OneToOne(cascade = CascadeType.MERGE, mappedBy = "order")
     @JsonIgnore
