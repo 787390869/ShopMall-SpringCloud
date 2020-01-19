@@ -157,6 +157,7 @@ public class OrderService extends BaseService {
                 } else if(order.getStatus() == Order.ORDER_CANCELED){
                    message =  "不能重复取消订单";
                 } else {
+                    srt.delete(key);
                     message = "已取消";
                 }
                 break;

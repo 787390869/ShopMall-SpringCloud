@@ -74,7 +74,7 @@ public class AliPayController extends BaseController {
     private CancelOrderService cancelOrderService;
 
     @RequestMapping(value = "toPay", method = RequestMethod.GET)
-    public void pay(HttpServletRequest req, HttpServletResponse resp, String code) throws Exception {
+    public void pay(HttpServletRequest req, HttpServletResponse resp, String code, String returnUrl) throws Exception {
         AlipayTradePagePayRequest request = new AlipayTradePagePayRequest();
         OrderParam orderParam = orderParamService.getParam();
         Order order = orderRepository.findByCode(code);
@@ -150,6 +150,9 @@ public class AliPayController extends BaseController {
                 order.setStatus(Order.ORDER_EXCEPTION);
             }
             orderRepository.save(order);
+            if (order.getStatus() == Order.ORDER_PAID) {
+                financialClient.create(order.getId(), order.getPaid(), this.getUserName());
+            }
         } else {
             log.warn("订单支付失败!");
         }

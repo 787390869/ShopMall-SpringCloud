@@ -31,4 +31,6 @@ public interface ShopCarRepository extends JpaRepository<ShopCar,Long> {
 
     @Query(nativeQuery = true, value = "delete from shopcars where nickname=:nickname")
     void deleteByNickname(String nickname);
+
+    ShopCar findByTablenameAndGoodidAndNickname(String tableName, int goodid, String nickname);
 }

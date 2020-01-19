@@ -1,11 +1,16 @@
 package shopcarserver.Service;
 
+import base.BaseWeb.ResultData;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shopcarserver.Bean.ShopCar;
 import shopcarserver.Dao.ShopCarRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -66,6 +71,21 @@ public class ShopCarService {
       */
     public List<ShopCar> getAllShopCars(String nickname) {
         return shopCarRepository.findByNickname(nickname);
+    }
+
+    /** 功能描述: 查询结算单数据
+      * @Param: [array, nickname]
+      * @Author: ZhangZiQiang
+      * @Date: 2020/1/19 15:33
+      */
+    public ResultData<List<ShopCar>> checkedShopCar(JSONArray array, String nickname) {
+        List<ShopCar> shopCars = new ArrayList<>();
+        array.stream().forEach(a -> {
+            String tb = JSONObject.parseObject(JSON.toJSONString(a)).getString("name");
+            int id = JSONObject.parseObject(JSON.toJSONString(a)).getInteger("id");
+            shopCars.add(shopCarRepository.findByTablenameAndGoodidAndNickname(tb, id, nickname));
+        });
+        return new ResultData<List<ShopCar>>(shopCars);
     }
 
     /**

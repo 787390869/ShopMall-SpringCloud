@@ -11,7 +11,7 @@
  Target Server Version : 80012
  File Encoding         : 65001
 
- Date: 09/01/2020 10:53:14
+ Date: 19/01/2020 17:47:59
 */
 
 SET NAMES utf8mb4;
@@ -65,18 +65,16 @@ CREATE TABLE `financial`  (
   `outcome` decimal(20, 0) NULL DEFAULT NULL COMMENT '实退金额',
   `income` decimal(20, 0) NOT NULL COMMENT '进账',
   `status` int(255) NOT NULL COMMENT '状态 1-已创建 2-已退还 3-已完成',
-  `create_time` date NOT NULL COMMENT '创建时间',
+  `create_time` datetime(0) NOT NULL COMMENT '创建时间',
   `creator` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '创建人',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 8 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 17 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of financial
 -- ----------------------------
-INSERT INTO `financial` VALUES (3, 10, 38, 48, 3, '2020-01-07', '张自强');
-INSERT INTO `financial` VALUES (5, 11, 38, 48, 3, '2020-01-07', '张自强');
-INSERT INTO `financial` VALUES (6, 12, 38, 48, 3, '2020-01-07', '张自强');
-INSERT INTO `financial` VALUES (7, 13, 38, 48, 3, '2020-01-07', '张自强');
+INSERT INTO `financial` VALUES (17, 125, NULL, 53, 1, '2020-01-19 09:39:46', '未登录');
+INSERT INTO `financial` VALUES (18, 126, NULL, 53, 1, '2020-01-19 09:44:33', '未登录');
 
 -- ----------------------------
 -- Table structure for question

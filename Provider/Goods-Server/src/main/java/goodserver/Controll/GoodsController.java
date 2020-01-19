@@ -3,6 +3,8 @@ package goodserver.Controll;
 
 import base.BaseWeb.ResultData;
 import base.Client.Goods.GoodsClient;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import goodserver.Bean.Goods;
 import goodserver.Service.GoodsService;
@@ -53,6 +55,16 @@ public class GoodsController {
     @GetMapping("allGoods")
     public ResultData<List<String>> allGoods() {
         return goodsService.allGoods();
+    }
+
+    @GetMapping("settleInfo")
+    public ResultData<JSONObject> settleInfo(String info) {
+        JSONArray jsonArray = JSONArray.parseArray(info);
+        if (jsonArray.size() > 0) {
+            return goodsService.settleInfo(jsonArray);
+        } else {
+            return new ResultData<>(ResultData.RESULT_CODE_FAIL, "选购商品不能为空");
+        }
     }
 
 }

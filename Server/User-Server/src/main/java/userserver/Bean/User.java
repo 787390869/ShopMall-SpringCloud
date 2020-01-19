@@ -38,6 +38,9 @@ public class User implements UserDetails {
     @Column(name = "tel")
     private String telephone;
 
+    @Column(name = "position")
+    private String position;
+
     @Column(name = "address")
     private String address;
 

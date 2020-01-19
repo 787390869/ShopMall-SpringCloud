@@ -1,8 +1,14 @@
 package goodserver.Service;
 import base.BaseWeb.BaseService;
 import base.BaseWeb.ResultData;
+import base.Beans.ShopCar;
+import base.Beans.User;
+import base.Client.ShopCar.ShopCarClient;
+import base.Client.User.UserClient;
 import base.Redis.RedisLock;
 import base.Redis.RedisService;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import goodserver.Bean.Goods;
 import goodserver.Dao.GoodsMapper;
@@ -11,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ClassUtils;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,6 +30,12 @@ public class GoodsService extends BaseService {
 
     @Autowired
     private GoodsMapper goodsMapper;
+
+    @Autowired
+    private UserClient userClient;
+
+    @Autowired
+    private ShopCarClient shopCarClient;
 
     /** 功能描述: 限制查询商品数据
       * @Param: [goodName, number]
@@ -113,6 +126,20 @@ public class GoodsService extends BaseService {
       */
     public ResultData<List<String>> allGoods() {
         return new ResultData<List<String>>(goodsMapper.allGoods());
+    }
+
+    /** 功能描述: 获取结算页数据
+      * @Param: [array]
+      * @Author: ZhangZiQiang
+      * @Date: 2020/1/19 9:58
+      */
+    public ResultData<JSONObject> settleInfo(JSONArray array) {
+        User user = userClient.userInfo(getUserName()).getData();
+        List<ShopCar> shopCars = shopCarClient.checkedShopCar(JSON.toJSONString(array), user.getNickname()).getData();
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("goodsInfo", shopCars);
+        jsonObject.put("userInfo", user);
+        return new ResultData<>(jsonObject);
     }
 
 }

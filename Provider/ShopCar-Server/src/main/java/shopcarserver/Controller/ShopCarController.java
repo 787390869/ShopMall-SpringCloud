@@ -5,6 +5,7 @@ import base.BaseWeb.ResultData;
 import base.Beans.Goods;
 import base.Client.Goods.GoodsClient;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.TypeReference;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import shopcarserver.Bean.ShopCar;
 import shopcarserver.Service.ShopCarService;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,6 +80,12 @@ public class ShopCarController {
     public List<ShopCar> getMyShopCars(@PathVariable("nickname")String nickname) throws Exception{
         nickname = URLDecoder.decode(nickname, "UTF-8");
         return  shopCarService.getAllShopCars(nickname);
+    }
+
+    @GetMapping("checkedShopCarInfo")
+    public ResultData<List<ShopCar>> checkedShopCar(String array, String nickname) {
+        JSONArray jsonArray = JSON.parseArray(array);
+        return shopCarService.checkedShopCar(jsonArray, nickname);
     }
 
     /**
