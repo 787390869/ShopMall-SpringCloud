@@ -12,6 +12,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.codingapi.txlcn.tc.annotation.DTXPropagation;
 import com.codingapi.txlcn.tc.annotation.LcnTransaction;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.OrderUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
@@ -98,6 +99,7 @@ public class FinancialService {
                 queryWrapper.lt("income", priceTo);
             }
         }
+        queryWrapper.orderByDesc("create_time");
         Page<Financial> page = new Page<>(pageNum, pageSize);
         IPage iPage = financialMapper.selectPage(page, queryWrapper);
         jsonObject.put("financials", iPage.getRecords());

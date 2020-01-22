@@ -1,8 +1,10 @@
 package shopcarserver.Service;
 
+import base.BaseWeb.BaseService;
 import base.BaseWeb.ResultData;
 import base.Client.QA.FinancialClient;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.codingapi.txlcn.tc.annotation.DTXPropagation;
 import com.codingapi.txlcn.tc.annotation.LcnTransaction;
@@ -13,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 import shopcarserver.Bean.CancelOrder;
 import shopcarserver.Bean.Order;
 import shopcarserver.Bean.OrderParam;
@@ -28,7 +31,7 @@ import java.util.Optional;
  * @Date: 2020-01-07 13:58
  **/
 @Service
-public class CancelOrderService {
+public class CancelOrderService extends BaseService {
 
     @Autowired
     private CancelOrderRepository cancelOrderRepository;
@@ -114,12 +117,25 @@ public class CancelOrderService {
         JSONObject infoObj = JSON.parseObject(searchInfo);
         String code = Optional.ofNullable(infoObj.getString("code")).orElse(null);
         int status = Optional.ofNullable(infoObj.getInteger("status")).orElse(-1);
-        Date createTime = Optional.ofNullable(infoObj.getDate("date")).orElse(null);
+        JSONArray createTimeArray = Optional.ofNullable(infoObj.getJSONArray("date")).orElse(null);
+        Long orderId = -1L;
+        String dateFrom = null;
+        String dateTo = null;
+        if (createTimeArray != null) {
+            dateFrom = createTimeArray.get(0).toString();
+            dateTo = createTimeArray.get(1).toString();
+        }
+        if (!StringUtils.isEmpty(code)) {
+            Order order = orderRepository.findByCode(code);
+            if (!ObjectUtils.isEmpty(order)) {
+                orderId = order.getId();
+            }
+        }
 
         JSONObject jsonObject = new JSONObject();
         Pageable pageable = PageRequest.of((pageNum - 1), pageSize);
 
-        Page<CancelOrder> page = cancelOrderRepositoryImpl.search(code, "", "", status, pageable);
+        Page<CancelOrder> page = cancelOrderRepositoryImpl.doSearch(orderId, dateFrom, dateTo, status, pageable);
 
         jsonObject.put("cancelOrders", page.getContent());
         jsonObject.put("count", page.getTotalPages());
