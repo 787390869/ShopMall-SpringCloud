@@ -7,7 +7,7 @@ spring:
   data:
     elasticsearch:
       cluster-name: willy
-      cluster-nodes: 127.0.0.1:9300
+      cluster-nodes: 192.168.241.231:9300
       properties:
         transport:
           tcp:

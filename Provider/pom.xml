@@ -43,21 +43,6 @@
         </dependency>
         <!-- TCC 分布式事务框架 -->
         <dependency>
-            <groupId>com.zzq.tcc</groupId>
-            <artifactId>tcc-transaction-api</artifactId>
-            <version>${custom.tcc.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.zzq.tcc</groupId>
-            <artifactId>tcc-transaction-core</artifactId>
-            <version>${custom.tcc.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.zzq.tcc</groupId>
-            <artifactId>tcc-transaction-spring</artifactId>
-            <version>${custom.tcc.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.codingapi.txlcn</groupId>
             <artifactId>txlcn-tc</artifactId>
             <version>5.0.2.RELEASE</version>

@@ -42,17 +42,17 @@ public class SchedulerConfig {
         return trigger;
     }
 
-    @Bean(name = "scheduler")
+    /*@Bean(name = "scheduler")
     public SchedulerFactoryBean scheduler(@Qualifier(value = "jobTrigger") Trigger jobTrigger) {
         SchedulerFactoryBean scheduler = new SchedulerFactoryBean();
         scheduler.setOverwriteExistingJobs(true);
-        /** 应用启动5秒后, 定时器才启动 */
+        *//** 应用启动5秒后, 定时器才启动 *//*
         scheduler.setStartupDelay(5);
         scheduler.setTriggers(jobTrigger);
         scheduler.setSchedulerName("delete file");
         scheduler.setBeanName("scheduler");
         return scheduler;
-    }
+    }*/
 
 }
 

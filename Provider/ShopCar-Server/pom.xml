@@ -25,6 +25,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
+            <version>${spring-boot.mysql.connector.version}</version>
         </dependency>
         <dependency>
             <groupId>com.alipay.sdk</groupId>
