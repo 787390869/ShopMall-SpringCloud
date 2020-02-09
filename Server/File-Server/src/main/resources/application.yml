@@ -44,8 +44,8 @@ fdfs:
     height: 200
     format: png
   tracker-list:
-    - 192.168.241.231:22122
-  web-server-url: http://192.168.241.231:8888/
+    - 192.168.148.235:22122
+  web-server-url: http://192.168.148.235:8888/
 
 eureka:
   client:
